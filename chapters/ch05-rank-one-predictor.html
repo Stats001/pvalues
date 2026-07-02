@@ -1,0 +1,1840 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.9.38">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+<meta name="description" content="Practical examples of how to increase power, reduce sample size, and choose better statistics tests">
+
+<title>5&nbsp; If you have non-normal data and one explanatory variable: Wilcoxon and Kruskal-Wallis – How to Get P-Values Less Than 0.05 in Biological Research</title>
+<style>
+/* Default styles provided by pandoc.
+** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
+*/
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+</style>
+
+
+<script src="../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../">
+<link href="../chapters/ch06-rank-more-than-one-predictor.html" rel="next">
+<link href="../chapters/ch04-robust-tests.html" rel="prev">
+<script src="../site_libs/quarto-html/quarto.js" type="module"></script>
+<script src="../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="../site_libs/quarto-html/popper.min.js"></script>
+<script src="../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting-de63f62b328812d8e578a4d74e282472.css" rel="stylesheet" class="quarto-color-scheme" id="quarto-text-highlighting-styles">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting-dark-6b6957c917596b414ec0b78690761e87.css" rel="stylesheet" class="quarto-color-scheme quarto-color-alternate" id="quarto-text-highlighting-styles">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting-de63f62b328812d8e578a4d74e282472.css" rel="stylesheet" class="quarto-color-scheme-extra" id="quarto-text-highlighting-styles">
+<script src="../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../site_libs/bootstrap/bootstrap-24cd44e0416da4fd58bb0517b27b0746.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme" id="quarto-bootstrap" data-mode="light">
+<link href="../site_libs/bootstrap/bootstrap-dark-21613c26995e5ad49e067cca7f3a46fb.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme quarto-color-alternate" id="quarto-bootstrap" data-mode="dark">
+<link href="../site_libs/bootstrap/bootstrap-24cd44e0416da4fd58bb0517b27b0746.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme-extra" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "sidebar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "start",
+  "type": "textbox",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+
+
+<link rel="stylesheet" href="../custom.css">
+</head>
+
+<body class="nav-sidebar floating quarto-light"><script id="quarto-html-before-body" type="application/javascript">
+    const toggleBodyColorMode = (bsSheetEl) => {
+      const mode = bsSheetEl.getAttribute("data-mode");
+      const bodyEl = window.document.querySelector("body");
+      if (mode === "dark") {
+        bodyEl.classList.add("quarto-dark");
+        bodyEl.classList.remove("quarto-light");
+      } else {
+        bodyEl.classList.add("quarto-light");
+        bodyEl.classList.remove("quarto-dark");
+      }
+    }
+    const toggleBodyColorPrimary = () => {
+      const bsSheetEl = window.document.querySelector("link#quarto-bootstrap:not([rel=disabled-stylesheet])");
+      if (bsSheetEl) {
+        toggleBodyColorMode(bsSheetEl);
+      }
+    }
+    const setColorSchemeToggle = (alternate) => {
+      const toggles = window.document.querySelectorAll('.quarto-color-scheme-toggle');
+      for (let i=0; i < toggles.length; i++) {
+        const toggle = toggles[i];
+        if (toggle) {
+          if (alternate) {
+            toggle.classList.add("alternate");
+          } else {
+            toggle.classList.remove("alternate");
+          }
+        }
+      }
+    };
+    const toggleColorMode = (alternate) => {
+      // Switch the stylesheets
+      const primaryStylesheets = window.document.querySelectorAll('link.quarto-color-scheme:not(.quarto-color-alternate)');
+      const alternateStylesheets = window.document.querySelectorAll('link.quarto-color-scheme.quarto-color-alternate');
+      manageTransitions('#quarto-margin-sidebar .nav-link', false);
+      if (alternate) {
+        // note: dark is layered on light, we don't disable primary!
+        enableStylesheet(alternateStylesheets);
+        for (const sheetNode of alternateStylesheets) {
+          if (sheetNode.id === "quarto-bootstrap") {
+            toggleBodyColorMode(sheetNode);
+          }
+        }
+      } else {
+        disableStylesheet(alternateStylesheets);
+        enableStylesheet(primaryStylesheets)
+        toggleBodyColorPrimary();
+      }
+      manageTransitions('#quarto-margin-sidebar .nav-link', true);
+      // Switch the toggles
+      setColorSchemeToggle(alternate)
+      // Hack to workaround the fact that safari doesn't
+      // properly recolor the scrollbar when toggling (#1455)
+      if (navigator.userAgent.indexOf('Safari') > 0 && navigator.userAgent.indexOf('Chrome') == -1) {
+        manageTransitions("body", false);
+        window.scrollTo(0, 1);
+        setTimeout(() => {
+          window.scrollTo(0, 0);
+          manageTransitions("body", true);
+        }, 40);
+      }
+    }
+    const disableStylesheet = (stylesheets) => {
+      for (let i=0; i < stylesheets.length; i++) {
+        const stylesheet = stylesheets[i];
+        stylesheet.rel = 'disabled-stylesheet';
+      }
+    }
+    const enableStylesheet = (stylesheets) => {
+      for (let i=0; i < stylesheets.length; i++) {
+        const stylesheet = stylesheets[i];
+        if(stylesheet.rel !== 'stylesheet') { // for Chrome, which will still FOUC without this check
+          stylesheet.rel = 'stylesheet';
+        }
+      }
+    }
+    const manageTransitions = (selector, allowTransitions) => {
+      const els = window.document.querySelectorAll(selector);
+      for (let i=0; i < els.length; i++) {
+        const el = els[i];
+        if (allowTransitions) {
+          el.classList.remove('notransition');
+        } else {
+          el.classList.add('notransition');
+        }
+      }
+    }
+    const isFileUrl = () => {
+      return window.location.protocol === 'file:';
+    }
+    const hasAlternateSentinel = () => {
+      let styleSentinel = getColorSchemeSentinel();
+      if (styleSentinel !== null) {
+        return styleSentinel === "alternate";
+      } else {
+        return false;
+      }
+    }
+    const setStyleSentinel = (alternate) => {
+      const value = alternate ? "alternate" : "default";
+      if (!isFileUrl()) {
+        window.localStorage.setItem("quarto-color-scheme", value);
+      } else {
+        localAlternateSentinel = value;
+      }
+    }
+    const getColorSchemeSentinel = () => {
+      if (!isFileUrl()) {
+        const storageValue = window.localStorage.getItem("quarto-color-scheme");
+        return storageValue != null ? storageValue : localAlternateSentinel;
+      } else {
+        return localAlternateSentinel;
+      }
+    }
+    const toggleGiscusIfUsed = (isAlternate, darkModeDefault) => {
+      const baseTheme = document.querySelector('#giscus-base-theme')?.value ?? 'light';
+      const alternateTheme = document.querySelector('#giscus-alt-theme')?.value ?? 'dark';
+      let newTheme = '';
+      if(authorPrefersDark) {
+        newTheme = isAlternate ? baseTheme : alternateTheme;
+      } else {
+        newTheme = isAlternate ? alternateTheme : baseTheme;
+      }
+      const changeGiscusTheme = () => {
+        // From: https://github.com/giscus/giscus/issues/336
+        const sendMessage = (message) => {
+          const iframe = document.querySelector('iframe.giscus-frame');
+          if (!iframe) return;
+          iframe.contentWindow.postMessage({ giscus: message }, 'https://giscus.app');
+        }
+        sendMessage({
+          setConfig: {
+            theme: newTheme
+          }
+        });
+      }
+      const isGiscussLoaded = window.document.querySelector('iframe.giscus-frame') !== null;
+      if (isGiscussLoaded) {
+        changeGiscusTheme();
+      }
+    };
+    const authorPrefersDark = false;
+    const darkModeDefault = authorPrefersDark;
+      document.querySelector('link#quarto-text-highlighting-styles.quarto-color-scheme-extra').rel = 'disabled-stylesheet';
+      document.querySelector('link#quarto-bootstrap.quarto-color-scheme-extra').rel = 'disabled-stylesheet';
+    let localAlternateSentinel = darkModeDefault ? 'alternate' : 'default';
+    // Dark / light mode switch
+    window.quartoToggleColorScheme = () => {
+      // Read the current dark / light value
+      let toAlternate = !hasAlternateSentinel();
+      toggleColorMode(toAlternate);
+      setStyleSentinel(toAlternate);
+      toggleGiscusIfUsed(toAlternate, darkModeDefault);
+      window.dispatchEvent(new Event('resize'));
+    };
+    // Switch to dark mode if need be
+    if (hasAlternateSentinel()) {
+      toggleColorMode(true);
+    } else {
+      toggleColorMode(false);
+    }
+  </script>
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+  <nav class="quarto-secondary-nav">
+    <div class="container-fluid d-flex">
+      <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+        <i class="bi bi-layout-text-sidebar-reverse"></i>
+      </button>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../chapters/ch05-rank-one-predictor.html"><span class="chapter-number">5</span>&nbsp; <span class="chapter-title">If you have non-normal data and one explanatory variable: Wilcoxon and Kruskal-Wallis</span></a></li></ol></nav>
+        <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
+        </a>
+      <button type="button" class="btn quarto-search-button" aria-label="Search" onclick="window.quartoOpenSearch();">
+        <i class="bi bi-search"></i>
+      </button>
+    </div>
+  </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article">
+<!-- sidebar -->
+  <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal quarto-sidebar-collapse-item sidebar-navigation floating overflow-auto">
+    <div class="pt-lg-2 mt-2 text-left sidebar-header">
+    <div class="sidebar-title mb-0 py-0">
+      <a href="../">How to Get P-Values Less Than 0.05 in Biological Research</a> 
+        <div class="sidebar-tools-main tools-wide">
+    <a href="https://github.com/Stats001/pvalues-book-2nd-edition" title="Source Code" class="quarto-navigation-tool px-1" aria-label="Source Code"><i class="bi bi-github"></i></a>
+    <div class="dropdown">
+      <a href="" title="Share" id="quarto-navigation-tool-dropdown-0" class="quarto-navigation-tool dropdown-toggle px-1" data-bs-toggle="dropdown" aria-expanded="false" role="link" aria-label="Share"><i class="bi bi-share"></i></a>
+      <ul class="dropdown-menu" aria-labelledby="quarto-navigation-tool-dropdown-0">
+          <li>
+            <a class="dropdown-item sidebar-tools-main-item" href="https://twitter.com/intent/tweet?url=|url|">
+              <i class="bi bi-twitter pe-1"></i>
+            Twitter
+            </a>
+          </li>
+          <li>
+            <a class="dropdown-item sidebar-tools-main-item" href="https://www.linkedin.com/sharing/share-offsite/?url=|url|">
+              <i class="bi bi-linkedin pe-1"></i>
+            LinkedIn
+            </a>
+          </li>
+      </ul>
+    </div>
+  <a href="" class="quarto-color-scheme-toggle quarto-navigation-tool  px-1" onclick="window.quartoToggleColorScheme(); return false;" title="Toggle dark mode"><i class="bi"></i></a>
+</div>
+    </div>
+      </div>
+        <div class="mt-2 flex-shrink-0 align-items-center">
+        <div class="sidebar-search">
+        <div id="quarto-search" class="" title="Search"></div>
+        </div>
+        </div>
+    <div class="sidebar-menu-container"> 
+    <ul class="list-unstyled mt-1">
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Preface</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch01-avoid-ttests.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">1</span>&nbsp; <span class="chapter-title">Avoid t-tests: Control for variables using multiple regression or ANOVA</span></span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch02-power-sample-size.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">2</span>&nbsp; <span class="chapter-title">Calculate power and sample size if you want p &lt; 0.05</span></span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch03-reduce-variability.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">3</span>&nbsp; <span class="chapter-title">Increase sample size last: reduce unexplained variability first</span></span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch04-robust-tests.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">4</span>&nbsp; <span class="chapter-title">If you have normally distributed data with outliers: Robust tests</span></span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch05-rank-one-predictor.html" class="sidebar-item-text sidebar-link active">
+ <span class="menu-text"><span class="chapter-number">5</span>&nbsp; <span class="chapter-title">If you have non-normal data and one explanatory variable: Wilcoxon and Kruskal-Wallis</span></span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch06-rank-more-than-one-predictor.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">6</span>&nbsp; <span class="chapter-title">If you have non-normal data and more than one explanatory variable: Rank methods for multiple explanatory variables</span></span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch07-survival-analysis.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">7</span>&nbsp; <span class="chapter-title">Survival Analysis</span></span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch08-count-data.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">8</span>&nbsp; <span class="chapter-title">For count outcomes consider negative binomial regression and Wilcoxon tests</span></span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch09-avoid-categorical.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">9</span>&nbsp; <span class="chapter-title">Avoid turning quantitative variables into categorical variables</span></span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch10-cmh-tests.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">10</span>&nbsp; <span class="chapter-title">Avoid Chi-Squared tests when you have ordered categories: use CMH tests instead</span></span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch11-balancing-variables.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">11</span>&nbsp; <span class="chapter-title">Balancing variables across treatment groups is not sufficient to get best p-values</span></span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch12-correlated-variables.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">12</span>&nbsp; <span class="chapter-title">Avoid correlated explanatory variables in multiple regression and ANOVA</span></span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch13-interactions.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">13</span>&nbsp; <span class="chapter-title">Look (out) for interactions: when subgroups respond differently to treatment</span></span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch14-two-primary-analyses.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">14</span>&nbsp; <span class="chapter-title">Use two primary analyses each with alpha 0.025 instead of one with 0.05</span></span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch15-avoid-OVAT.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">15</span>&nbsp; <span class="chapter-title">Avoid one-variable-at-a-time experiments. Use factorial experiment design.</span></span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch16-rescue-factorial.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">16</span>&nbsp; <span class="chapter-title">Rescue failed experiments using fractional factorial designs</span></span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch17-multiple-testing.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">17</span>&nbsp; <span class="chapter-title">The wrong way and the right way to get p &lt; 0.05: multiple hypothesis testing</span></span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch18-right-goal.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">18</span>&nbsp; <span class="chapter-title">Is P &lt; 0.05 the right goal?</span></span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch19-p-greater-05.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">19</span>&nbsp; <span class="chapter-title">What if you still get p &gt; 0.05?</span></span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/ch20-claude-for-these-analyses.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">20</span>&nbsp; <span class="chapter-title">Don’t know R? Use Claude to run these analyses for you</span></span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../chapters/references.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">References</span></a>
+  </div>
+</li>
+    </ul>
+    </div>
+</nav>
+<div id="quarto-sidebar-glass" class="quarto-sidebar-collapse-item" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item"></div>
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">Table of contents</h2>
+   
+  <ul>
+  <li><a href="#alternative-to-two-sample-t-test-wilcoxon-rank-sum-for-two-independent-samples" id="toc-alternative-to-two-sample-t-test-wilcoxon-rank-sum-for-two-independent-samples" class="nav-link active" data-scroll-target="#alternative-to-two-sample-t-test-wilcoxon-rank-sum-for-two-independent-samples"><span class="header-section-number">5.1</span> Alternative to two-sample t-test: Wilcoxon rank sum for two independent samples</a>
+  <ul class="collapse">
+  <li><a href="#problems-with-too-many-tied-values-and-how-to-fix-them" id="toc-problems-with-too-many-tied-values-and-how-to-fix-them" class="nav-link" data-scroll-target="#problems-with-too-many-tied-values-and-how-to-fix-them">Problems with too many tied values and how to fix them</a></li>
+  </ul></li>
+  <li><a href="#how-do-you-quantify-the-difference-between-two-treatment-groups-using-ranks-the-hodges-lehmann-location-shift-estimator" id="toc-how-do-you-quantify-the-difference-between-two-treatment-groups-using-ranks-the-hodges-lehmann-location-shift-estimator" class="nav-link" data-scroll-target="#how-do-you-quantify-the-difference-between-two-treatment-groups-using-ranks-the-hodges-lehmann-location-shift-estimator"><span class="header-section-number">5.2</span> How do you quantify the difference between two treatment groups using ranks? The Hodges-Lehmann location shift estimator</a></li>
+  <li><a href="#sample-size-for-a-t-test-to-give-power-of-0.8-for-the-colon-data" id="toc-sample-size-for-a-t-test-to-give-power-of-0.8-for-the-colon-data" class="nav-link" data-scroll-target="#sample-size-for-a-t-test-to-give-power-of-0.8-for-the-colon-data"><span class="header-section-number">5.3</span> Sample size for a t-test to give power of 0.8 for the colon data</a></li>
+  <li><a href="#alternative-to-paired-t-test-wilcoxon-signed-rank-test" id="toc-alternative-to-paired-t-test-wilcoxon-signed-rank-test" class="nav-link" data-scroll-target="#alternative-to-paired-t-test-wilcoxon-signed-rank-test"><span class="header-section-number">5.4</span> Alternative to paired t-test: Wilcoxon signed rank test</a></li>
+  <li><a href="#rank-alternatives-to-one-way-anova-kruskal-wallis-and-rfit" id="toc-rank-alternatives-to-one-way-anova-kruskal-wallis-and-rfit" class="nav-link" data-scroll-target="#rank-alternatives-to-one-way-anova-kruskal-wallis-and-rfit"><span class="header-section-number">5.5</span> Rank alternatives to one-way ANOVA: Kruskal-Wallis and Rfit</a></li>
+  <li><a href="#do-the-wilcoxon-tests-and-kruskal-wallis-test-compare-the-medians-of-groups" id="toc-do-the-wilcoxon-tests-and-kruskal-wallis-test-compare-the-medians-of-groups" class="nav-link" data-scroll-target="#do-the-wilcoxon-tests-and-kruskal-wallis-test-compare-the-medians-of-groups"><span class="header-section-number">5.6</span> Do the Wilcoxon tests and Kruskal-Wallis test compare the medians of groups?</a></li>
+  <li><a href="#when-should-i-use-t-tests-and-anova-versus-rank-methods" id="toc-when-should-i-use-t-tests-and-anova-versus-rank-methods" class="nav-link" data-scroll-target="#when-should-i-use-t-tests-and-anova-versus-rank-methods"><span class="header-section-number">5.7</span> When should I use t-tests and ANOVA versus rank methods?</a></li>
+  </ul>
+<div class="toc-actions"><ul><li><a href="https://github.com/Stats001/pvalues-book-2nd-edition/edit/main/chapters/ch05-rank-one-predictor.qmd" class="toc-action"><i class="bi bi-github"></i>Edit this page</a></li><li><a href="https://github.com/Stats001/pvalues-book-2nd-edition/issues/new" class="toc-action"><i class="bi empty"></i>Report an issue</a></li></ul></div></nav>
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<div class="quarto-title-block"><div><h1 class="title"><span class="chapter-number">5</span>&nbsp; <span class="chapter-title">If you have non-normal data and one explanatory variable: Wilcoxon and Kruskal-Wallis</span></h1><button type="button" class="btn code-tools-button" id="quarto-code-tools-source"><i class="bi"></i> Code</button></div></div>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<p>If you have outliers in your data, or the data within each treatment group are not normally distributed, t-tests are more likely to give non-significant p-values. Outliers and non-normal distributions reduce the power of t-tests to detect significant effects. Even when graphs of your data show that there is a difference among the groups, you may get non-significant p-values from t-tests as a result of the outliers or non-normal distributions.</p>
+<p>In these cases, the Wilcoxon rank tests and Kruskal-Wallis tests are alternatives to the t-test and anova. However, none of these methods allow you to have more than one explanatory variable. For this reason, I suggest that, instead of using these methods, you consider the methods that allow for more than one explanatory variable, described in the following chapter.</p>
+<p>If your sample size is large, deviations from normal distribution may be less of a problem for t-tests and ANOVA. However, even with a large sample size, you can often increase power by using a rank method.</p>
+<p>Load these libraries to run the examples in this chapter.</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidyverse)</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(coin)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<p>As an example of what we mean by ranks, here are observations from the sleep data frame from R with the original values of the variable extra and the values of extra converted to ranks. You can use the help(sleep) command to read a description of the data set.</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>ranked.data  <span class="ot">=</span> <span class="fu">data.frame</span>(<span class="at">extra =</span> <span class="fu">sort</span>(sleep<span class="sc">$</span>extra),</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">ranked.extra =</span> <span class="fu">rank</span>(<span class="fu">sort</span>(sleep<span class="sc">$</span>extra)))</span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>ranked.data</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>   extra ranked.extra
+1   -1.6          1.0
+2   -1.2          2.0
+3   -0.2          3.0
+4   -0.1          4.5
+5   -0.1          4.5
+6    0.0          6.0
+7    0.1          7.0
+8    0.7          8.0
+9    0.8          9.5
+10   0.8          9.5
+11   1.1         11.0
+12   1.6         12.0
+13   1.9         13.0
+14   2.0         14.0
+15   3.4         15.5
+16   3.4         15.5
+17   3.7         17.0
+18   4.4         18.0
+19   4.6         19.0
+20   5.5         20.0</code></pre>
+</div>
+</div>
+<section id="alternative-to-two-sample-t-test-wilcoxon-rank-sum-for-two-independent-samples" class="level2" data-number="5.1">
+<h2 data-number="5.1" class="anchored" data-anchor-id="alternative-to-two-sample-t-test-wilcoxon-rank-sum-for-two-independent-samples"><span class="header-section-number">5.1</span> Alternative to two-sample t-test: Wilcoxon rank sum for two independent samples</h2>
+<p>Let’s look at the colon cancer example from the previous chapter, where we use a t-test for the question, do colon cancer patients have elevated levels of the mucin protein in their blood?</p>
+<p>Here is R code with the data and a graph.</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>cancer<span class="ot">=</span><span class="fu">c</span>(<span class="dv">83</span>, <span class="dv">89</span>, <span class="dv">90</span>, <span class="dv">93</span>, <span class="dv">98</span>)</span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>controls<span class="ot">=</span><span class="fu">c</span>(<span class="dv">99</span>, <span class="dv">100</span>, <span class="dv">103</span>, <span class="dv">104</span>,  <span class="dv">141</span>)</span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>Mucin<span class="ot">=</span><span class="fu">c</span>(cancer,controls)</span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>Diagnosis<span class="ot">=</span><span class="fu">c</span>(<span class="fu">rep</span>(<span class="st">"Cancer"</span>,<span class="dv">5</span>), <span class="fu">rep</span>(<span class="st">"Controls"</span>,<span class="dv">5</span>))</span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>Diagnosis <span class="ot">=</span> <span class="fu">as.factor</span>(Diagnosis) <span class="co"># Some functions require factors.</span></span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>colon.data<span class="ot">=</span><span class="fu">data.frame</span>(Diagnosis, Mucin)</span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a>colon.data</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>   Diagnosis Mucin
+1     Cancer    83
+2     Cancer    89
+3     Cancer    90
+4     Cancer    93
+5     Cancer    98
+6   Controls    99
+7   Controls   100
+8   Controls   103
+9   Controls   104
+10  Controls   141</code></pre>
+</div>
+</div>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="fu">with</span>(colon.data, <span class="fu">boxplot</span>(Mucin <span class="sc">~</span> Diagnosis, <span class="at">ylab=</span><span class="st">"Mucin"</span>, <span class="at">ylim=</span><span class="fu">c</span>(<span class="dv">50</span>,<span class="dv">150</span>)))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="ch05-rank-one-predictor_files/figure-html/unnamed-chunk-4-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>The boxplot and data show that there is complete separation between the two groups. In fact, all the cancer subjects have lower mucin values (98 or less) than any of the controls (99 or greater). But notice the large outlier in the control group, where one subject has a mucin value of 141.</p>
+<p>Here are the means and medians of the two groups. Notice that the mean of the control group, 109.4, is larger than the median, 103. This difference is due to the outlier.</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="fu">aggregate</span>(Mucin <span class="sc">~</span> Diagnosis, colon.data, mean)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>  Diagnosis Mucin
+1    Cancer  90.6
+2  Controls 109.4</code></pre>
+</div>
+</div>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="fu">aggregate</span>(Mucin <span class="sc">~</span> Diagnosis, colon.data, median)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>  Diagnosis Mucin
+1    Cancer    90
+2  Controls   103</code></pre>
+</div>
+</div>
+<p>Here is the ordinary two-sample t-test, using the R function t.test.</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb11"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="fu">with</span>(colon.data, <span class="fu">t.test</span>(Mucin <span class="sc">~</span> Diagnosis, <span class="at">var.equal=</span><span class="cn">TRUE</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+    Two Sample t-test
+
+data:  Mucin by Diagnosis
+t = -2.258, df = 8, p-value = 0.05389
+alternative hypothesis: true difference in means between group Cancer and group Controls is not equal to 0
+95 percent confidence interval:
+ -37.9994752   0.3994752
+sample estimates:
+  mean in group Cancer mean in group Controls 
+                  90.6                  109.4 </code></pre>
+</div>
+</div>
+<p>The output from the t-test includes the means of the two groups (90.6 and 109.4), and the 95% confidence interval for difference between the means of the two groups (-37.99 to 0.399). Because the 95% confidence interval includes 0, we get p &gt; 0.05.</p>
+<p>The Wilcoxon rank sum test is an alternative to the t-test. The Wilcoxon rank sum test uses the rank value of each observation, rather than the actual value, so it is not affected by the outlier.</p>
+<p>Here is the Wilcoxon test using the R function wilcox.test.</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb13"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="fu">with</span>(colon.data, <span class="fu">wilcox.test</span>(Mucin <span class="sc">~</span> Diagnosis, <span class="at">conf.int=</span><span class="cn">TRUE</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+    Wilcoxon rank sum exact test
+
+data:  Mucin by Diagnosis
+W = 0, p-value = 0.007937
+alternative hypothesis: true location shift is not equal to 0
+95 percent confidence interval:
+ -51  -5
+sample estimates:
+difference in location 
+                   -13 </code></pre>
+</div>
+</div>
+<p>Using the rank values, the Wilcoxon rank sum test yields a p-value of p = 0.0079. We reject the null hypothesis and conclude that colon cancer patients have mucin levels different from those of healthy controls.</p>
+<section id="problems-with-too-many-tied-values-and-how-to-fix-them" class="level3">
+<h3 class="anchored" data-anchor-id="problems-with-too-many-tied-values-and-how-to-fix-them">Problems with too many tied values and how to fix them</h3>
+<p>You may sometimes have a data set with a lot of observations that have the same value (tied values). Base R’s wilcox.test() handles ties via normal approximations; it sometimes gives warning message with small sample sizes. If that happens, an alternative is to use wilcox_test() from the coin package. The coin::wilcox_test() function handles exact distribution adjustments for ties.</p>
+<p>In case you need it, here is the code to run the coin::wilcox_test.</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb15"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="fu">with</span>(colon.data, coin<span class="sc">::</span><span class="fu">wilcox_test</span>(Mucin <span class="sc">~</span> Diagnosis, <span class="at">conf.int=</span><span class="cn">TRUE</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+    Asymptotic Wilcoxon-Mann-Whitney Test
+
+data:  Mucin by Diagnosis (Cancer, Controls)
+Z = -2.6112, p-value = 0.009023
+alternative hypothesis: true mu is not equal to 0
+95 percent confidence interval:
+ -48  -6
+sample estimates:
+difference in location 
+                   -13 </code></pre>
+</div>
+</div>
+</section>
+</section>
+<section id="how-do-you-quantify-the-difference-between-two-treatment-groups-using-ranks-the-hodges-lehmann-location-shift-estimator" class="level2" data-number="5.2">
+<h2 data-number="5.2" class="anchored" data-anchor-id="how-do-you-quantify-the-difference-between-two-treatment-groups-using-ranks-the-hodges-lehmann-location-shift-estimator"><span class="header-section-number">5.2</span> How do you quantify the difference between two treatment groups using ranks? The Hodges-Lehmann location shift estimator</h2>
+<p>When you compare two treatment groups using a t-test, the output tells you the means of the two group and the difference between the means.</p>
+<p>When we compare the ranks of two treatment groups, the most commonly used descriptor of differences is the Hodges-Lehmann (HL) location shift estimator. The HL estimator is the median of all paired differences between the two treatment groups. It’s easier to understand with a simple example.</p>
+<p>Suppose we have the following data on two groups.</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb17"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a>treatment <span class="ot">=</span> <span class="fu">c</span>(<span class="dv">5</span>, <span class="dv">7</span>, <span class="dv">8</span>, <span class="dv">10</span>, <span class="dv">12</span>, <span class="dv">15</span>, <span class="dv">18</span>)  </span>
+<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a>control <span class="ot">=</span> <span class="fu">c</span>(<span class="dv">9</span>, <span class="dv">11</span>, <span class="dv">13</span>, <span class="dv">14</span>, <span class="dv">16</span>, <span class="dv">20</span>, <span class="dv">25</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<p>We calculate all the pairwise (treatment - control) differences.</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb18"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Calculate all pairwise treatment - control differences</span></span>
+<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a>cross_diffs <span class="ot">=</span> <span class="fu">outer</span>(treatment, control, <span class="st">"-"</span>) </span>
+<span id="cb18-3"><a href="#cb18-3" aria-hidden="true" tabindex="-1"></a>cross_diffs</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>     [,1] [,2] [,3] [,4] [,5] [,6] [,7]
+[1,]   -4   -6   -8   -9  -11  -15  -20
+[2,]   -2   -4   -6   -7   -9  -13  -18
+[3,]   -1   -3   -5   -6   -8  -12  -17
+[4,]    1   -1   -3   -4   -6  -10  -15
+[5,]    3    1   -1   -2   -4   -8  -13
+[6,]    6    4    2    1   -1   -5  -10
+[7,]    9    7    5    4    2   -2   -7</code></pre>
+</div>
+</div>
+<p>Sort the pairwise differences.</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb20"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a><span class="fu">sort</span>(cross_diffs)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code> [1] -20 -18 -17 -15 -15 -13 -13 -12 -11 -10 -10  -9  -9  -8  -8  -8  -7  -7  -6
+[20]  -6  -6  -6  -5  -5  -4  -4  -4  -4  -3  -3  -2  -2  -2  -1  -1  -1  -1   1
+[39]   1   1   2   2   3   4   4   5   6   7   9</code></pre>
+</div>
+</div>
+<p>The Hodges-Lehmann (HL) estimator is then the median of all the pairwise differences.</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb22"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a><span class="fu">median</span>(cross_diffs)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] -4</code></pre>
+</div>
+</div>
+<p>The Hodges-Lehmann (HL) estimator tells us that the treatment group is shifted by -4 units compared to the control group.</p>
+<p>Notice that the HL estimator is an estimate of a shift parameter, that is, the amount by which the entire distribution of outcomes in one group is displaced relative to the other. This is not the same as the difference in means or the difference in medians. Instead, it is based on the differences between all the points in each group.</p>
+<p>In this particular example, the median of the differences (the HL estimator) happens to be equal to the difference of the medians, but this need not always be true.</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb24"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a><span class="fu">median</span>(treatment)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 10</code></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb26"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a><span class="fu">median</span>(control)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 14</code></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb28"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb28-1"><a href="#cb28-1" aria-hidden="true" tabindex="-1"></a><span class="fu">median</span>(treatment) <span class="sc">-</span> <span class="fu">median</span>(control)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] -4</code></pre>
+</div>
+</div>
+<p>Let’s look again at the colon data example. The output from the Wilcoxon test includes the sample estimate of the difference in location. The difference in location is the Hodges-Lehmann estimator, which is -13 for these data.</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb30"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb30-1"><a href="#cb30-1" aria-hidden="true" tabindex="-1"></a><span class="fu">with</span>(colon.data, <span class="fu">wilcox.test</span>(Mucin <span class="sc">~</span> Diagnosis, <span class="at">conf.int=</span><span class="cn">TRUE</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+    Wilcoxon rank sum exact test
+
+data:  Mucin by Diagnosis
+W = 0, p-value = 0.007937
+alternative hypothesis: true location shift is not equal to 0
+95 percent confidence interval:
+ -51  -5
+sample estimates:
+difference in location 
+                   -13 </code></pre>
+</div>
+</div>
+<p>The 95% confidence interval for the difference in location for these data is -51 to -5 (the Moses confidence interval). Because the 95% confidence interval does not include 0, we get p &lt; 0.05. The Hodges-Lehmann estimator is not necessarily equal to the difference between the medians of the two groups. As described below, there may be no difference between the group medians. But if one group tends to have higher (or lower) values than the other group (stochastic dominance), the Wilcoxon test can give p &lt; 0.05 even if the medians are identical.</p>
+</section>
+<section id="sample-size-for-a-t-test-to-give-power-of-0.8-for-the-colon-data" class="level2" data-number="5.3">
+<h2 data-number="5.3" class="anchored" data-anchor-id="sample-size-for-a-t-test-to-give-power-of-0.8-for-the-colon-data"><span class="header-section-number">5.3</span> Sample size for a t-test to give power of 0.8 for the colon data</h2>
+<p>What sample size would we need if we wanted to get a significant p-value for the t-test for the colon data? The difference between the group means is delta = 109.4-90.6 = 18.8. The standard deviation in the control group is sd = 17.8. We’ll use the usual significance level (alpha) of sig.level = 0.05, and desired power of 0.8. The function power.t.test gives the required sample size for these assumptions:</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb32"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb32-1"><a href="#cb32-1" aria-hidden="true" tabindex="-1"></a><span class="fu">power.t.test</span>(<span class="at">delta =</span> <span class="fl">18.8</span>, <span class="at">sd =</span> <span class="fl">17.8</span>, <span class="at">sig.level =</span> <span class="fl">0.05</span>, <span class="at">power =</span> <span class="fl">0.8</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+     Two-sample t test power calculation 
+
+              n = 15.09557
+          delta = 18.8
+             sd = 17.8
+      sig.level = 0.05
+          power = 0.8
+    alternative = two.sided
+
+NOTE: n is number in *each* group</code></pre>
+</div>
+</div>
+<p>We would need a sample size of 15 per group, 30 total, to have an 80% chance of getting p &lt; 0.05 using a t-test. The chapters on sample size and power provide more explanation.</p>
+</section>
+<section id="alternative-to-paired-t-test-wilcoxon-signed-rank-test" class="level2" data-number="5.4">
+<h2 data-number="5.4" class="anchored" data-anchor-id="alternative-to-paired-t-test-wilcoxon-signed-rank-test"><span class="header-section-number">5.4</span> Alternative to paired t-test: Wilcoxon signed rank test</h2>
+<p>The paired t-test is often used to test for difference in paired (matched) samples, such as the difference before and after treatment. The Wilcoxon signed rank test is a rank-based analog of the paired t-test. Here’s an example.</p>
+<p>Suppose we would like to know if bears lose weight between winter and spring, while they are hibernating. We collect the following data.</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb34"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb34-1"><a href="#cb34-1" aria-hidden="true" tabindex="-1"></a>bears.winter<span class="ot">=</span><span class="fu">c</span>(<span class="dv">300</span>,<span class="dv">470</span>,<span class="dv">550</span>,<span class="dv">760</span>,<span class="dv">800</span>,<span class="dv">955</span>,<span class="dv">1260</span>,<span class="dv">1290</span>)</span>
+<span id="cb34-2"><a href="#cb34-2" aria-hidden="true" tabindex="-1"></a>bears.spring<span class="ot">=</span><span class="fu">c</span>(<span class="dv">280</span>,<span class="dv">445</span>,<span class="dv">520</span>,<span class="dv">715</span>,<span class="dv">750</span>,<span class="dv">890</span>,<span class="dv">990</span>,<span class="dv">900</span>)</span>
+<span id="cb34-3"><a href="#cb34-3" aria-hidden="true" tabindex="-1"></a>Weight<span class="ot">=</span><span class="fu">c</span>(bears.winter, bears.spring)</span>
+<span id="cb34-4"><a href="#cb34-4" aria-hidden="true" tabindex="-1"></a>Season<span class="ot">=</span><span class="fu">c</span>(<span class="fu">rep</span>(<span class="st">"Winter"</span>,<span class="dv">8</span>), <span class="fu">rep</span>(<span class="st">"Spring"</span>,<span class="dv">8</span>))</span>
+<span id="cb34-5"><a href="#cb34-5" aria-hidden="true" tabindex="-1"></a>bear.data<span class="ot">=</span><span class="fu">data.frame</span>(Season,Weight)</span>
+<span id="cb34-6"><a href="#cb34-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb34-7"><a href="#cb34-7" aria-hidden="true" tabindex="-1"></a>bear.data</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>   Season Weight
+1  Winter    300
+2  Winter    470
+3  Winter    550
+4  Winter    760
+5  Winter    800
+6  Winter    955
+7  Winter   1260
+8  Winter   1290
+9  Spring    280
+10 Spring    445
+11 Spring    520
+12 Spring    715
+13 Spring    750
+14 Spring    890
+15 Spring    990
+16 Spring    900</code></pre>
+</div>
+</div>
+<p>The graph of the weight change shows that there are two large outliers.</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb36"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb36-1"><a href="#cb36-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(bears.winter<span class="sc">-</span>bears.spring)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="ch05-rank-one-predictor_files/figure-html/unnamed-chunk-18-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>We’ll first use the paired t-test to examine the change in weight of bears, where the same bears were weighed in winter and in spring. Then we’ll analyze the data using the Wilcoxon signed rank test.</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb37"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb37-1"><a href="#cb37-1" aria-hidden="true" tabindex="-1"></a><span class="fu">t.test</span>(bears.winter, bears.spring, <span class="at">paired=</span><span class="cn">TRUE</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+    Paired t-test
+
+data:  bears.winter and bears.spring
+t = 2.274, df = 7, p-value = 0.05714
+alternative hypothesis: true mean difference is not equal to 0
+95 percent confidence interval:
+  -4.460666 228.210666
+sample estimates:
+mean difference 
+        111.875 </code></pre>
+</div>
+</div>
+<p>The paired t-test gives p = 0.057, indicating that bears do not lose weight while hibernating.</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb39"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb39-1"><a href="#cb39-1" aria-hidden="true" tabindex="-1"></a><span class="fu">wilcox.test</span>(bears.winter, bears.spring, <span class="at">paired=</span><span class="cn">TRUE</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+    Wilcoxon signed rank exact test
+
+data:  bears.winter and bears.spring
+V = 36, p-value = 0.007813
+alternative hypothesis: true location shift is not equal to 0</code></pre>
+</div>
+</div>
+<p>The Wilcoxon signed rank test gives a significant result, p = 0.0078, indicating that bears lose weight during winter hibernation.</p>
+<p>Notice that all the bears actually lose weight. Using the paired t-test, the p-value is not significant, and we conclude that bears don’t lose weight. The Wilcoxon signed rank test gives us p =0.0078, so we reject the null hypothesis, and conclude that bears do lose weight.</p>
+</section>
+<section id="rank-alternatives-to-one-way-anova-kruskal-wallis-and-rfit" class="level2" data-number="5.5">
+<h2 data-number="5.5" class="anchored" data-anchor-id="rank-alternatives-to-one-way-anova-kruskal-wallis-and-rfit"><span class="header-section-number">5.5</span> Rank alternatives to one-way ANOVA: Kruskal-Wallis and Rfit</h2>
+<p>One-way ANOVA allows us to compare two or more treatment groups. The Kruskal-Wallis test is one rank alternative. Another alternative is the rank-based oneway.rfit function from the package Rfit.</p>
+<p>We’ll use the quail data set from the Rfit package. Thirty-nine quail were randomized to one of 4 treatments for lowering low density lipoprotein (ldl). The variable “treat” is a factor. The variable ldl is the low density lipoprotein.</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb41"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb41-1"><a href="#cb41-1" aria-hidden="true" tabindex="-1"></a><span class="co"># install.packages("Rfit") # if not already installed</span></span>
+<span id="cb41-2"><a href="#cb41-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(Rfit)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb42"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb42-1"><a href="#cb42-1" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(quail, <span class="dv">10</span>) <span class="co"># display the first 10 rows of the quail data set</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>   treat ldl
+1      1  52
+2      1  67
+3      1  54
+4      1  69
+5      1 116
+6      1  79
+7      1  68
+8      1  47
+9      1 120
+10     1  73</code></pre>
+</div>
+</div>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb44"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb44-1"><a href="#cb44-1" aria-hidden="true" tabindex="-1"></a><span class="fu">with</span>(quail, <span class="fu">boxplot</span>(ldl <span class="sc">~</span> treat))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="ch05-rank-one-predictor_files/figure-html/unnamed-chunk-23-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>The boxplots suggest that there are differences among the 4 treatment groups. But there are large outliers that will adversely affect t-tests or ANOVA.</p>
+<p>Here are the median values for each treatment.</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb45"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb45-1"><a href="#cb45-1" aria-hidden="true" tabindex="-1"></a><span class="fu">aggregate</span>(ldl<span class="sc">~</span>treat, quail, median)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>  treat  ldl
+1     1 68.5
+2     2 35.0
+3     3 62.0
+4     4 65.0</code></pre>
+</div>
+</div>
+<p>We’ll begin with a standard one-way analysis of variance.</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb47"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb47-1"><a href="#cb47-1" aria-hidden="true" tabindex="-1"></a>quail.lm.fit <span class="ot">=</span> <span class="fu">with</span>(quail, <span class="fu">lm</span>(ldl <span class="sc">~</span> treat))</span>
+<span id="cb47-2"><a href="#cb47-2" aria-hidden="true" tabindex="-1"></a><span class="fu">anova</span>(quail.lm.fit)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Analysis of Variance Table
+
+Response: ldl
+          Df Sum Sq Mean Sq F value Pr(&gt;F)
+treat      3   3189 1062.85  1.1433 0.3451
+Residuals 35  32536  929.61               </code></pre>
+</div>
+</div>
+<p>The one-way analysis of variance indicates that there is no difference among the 4 treatments (p = 0.345).</p>
+<p>Next try the Kruskal-Wallis test.</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb49"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb49-1"><a href="#cb49-1" aria-hidden="true" tabindex="-1"></a><span class="fu">with</span>(quail, <span class="fu">kruskal.test</span>(ldl, treat))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+    Kruskal-Wallis rank sum test
+
+data:  ldl and treat
+Kruskal-Wallis chi-squared = 7.1879, df = 3, p-value = 0.06614</code></pre>
+</div>
+</div>
+<p>The Kruskal-Wallis test approaches significance, with p = 0.066.</p>
+<p>Alternatively, we can use the function oneway.rfit, from the Rfit package, to perform a rank-based analysis of the quail data.</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb51"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb51-1"><a href="#cb51-1" aria-hidden="true" tabindex="-1"></a>quail.oneway.rfit <span class="ot">=</span> <span class="fu">with</span>(quail, <span class="fu">oneway.rfit</span>(ldl, treat))</span>
+<span id="cb51-2"><a href="#cb51-2" aria-hidden="true" tabindex="-1"></a>quail.oneway.rfit</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Call:
+oneway.rfit(y = ldl, g = treat)
+
+Overall Test of All Locations Equal 
+
+Drop in Dispersion Test
+F-Statistic     p-value 
+   3.916944    0.016394 
+
+
+    Pairwise comparisons using Rfit 
+
+data:  ldl and treat 
+
+  1      2      3     
+2 0.0046 -      -     
+3 0.6315 0.0157 -     
+4 0.5599 0.0243 0.9069
+
+P value adjustment method: none </code></pre>
+</div>
+</div>
+<p>The oneway.rfit function indicates that there is a significant difference among the quail treatment groups p = 0.016394. The oneway.rfit output also shows pairwise comparisons that test for differences among the 4 treatment groups. By default, there is no p-value adjustment for multiple hypothesis testing. We can request estimates of the differences between each pair of treatments with confidence intervals adjusted for multiple comparisons by specifying method = ”tukey”.</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb53"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb53-1"><a href="#cb53-1" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(quail.oneway.rfit, <span class="at">method=</span><span class="st">"tukey"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+Multiple Comparisons
+Method Used  tukey 
+
+  I J Estimate  St Err Lower Bound CI Upper Bound CI
+1 1 2      -25 8.26704      -47.29541       -2.70459
+2 1 3       -4 8.26704      -26.29541       18.29541
+3 1 4       -5 8.49358      -27.90636       17.90636
+4 2 3      -21 8.26704      -43.29541        1.29541
+5 2 4      -20 8.49358      -42.90636        2.90636
+6 3 4        1 8.49358      -21.90636       23.90636</code></pre>
+</div>
+</div>
+<p>For the pairwise comparisons, if the lower and upper bound CI do not include zero then the pair of treatments differ after Tukey correction for multiple hypothesis testing. Thus, in the first row, which compares treatments 1 and 2, the lower and upper confidence bounds are -47.29 to -.27, which does not include zero, so the difference is significant.</p>
+</section>
+<section id="do-the-wilcoxon-tests-and-kruskal-wallis-test-compare-the-medians-of-groups" class="level2" data-number="5.6">
+<h2 data-number="5.6" class="anchored" data-anchor-id="do-the-wilcoxon-tests-and-kruskal-wallis-test-compare-the-medians-of-groups"><span class="header-section-number">5.6</span> Do the Wilcoxon tests and Kruskal-Wallis test compare the medians of groups?</h2>
+<p>If the treatment groups do not differ in shape, but differ only by a shift in their location, then the Wilcoxon tests and Kruskal-Wallis compare the medians of the treatment groups. If the treatment groups differ in shape and location, these rank tests compare the entire distributions of the groups (that is, the ranks of all the observations, not just the median).</p>
+<p>You can construct two treatment groups that have identical medians, but that differ in their rank sums, and will give significant differences in the Wilcoxon or Kruskal-Wallis tests.</p>
+<p>For the following data, the medians of the groups are both zero but the standard deviations (shape) are different.</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb55"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb55-1"><a href="#cb55-1" aria-hidden="true" tabindex="-1"></a>Group.A<span class="ot">=</span><span class="fu">c</span>(<span class="dv">0</span>,<span class="dv">0</span>,<span class="dv">0</span>,<span class="dv">0</span>,<span class="dv">0</span>,<span class="dv">0</span>,<span class="dv">0</span>,<span class="dv">0</span>,<span class="dv">0</span>,<span class="dv">0</span>,<span class="dv">0</span>,<span class="dv">0</span>,<span class="dv">0</span>,<span class="dv">0</span>,<span class="dv">0</span>,<span class="dv">0</span>,<span class="dv">0</span>,<span class="dv">0</span>,<span class="dv">0</span>,<span class="dv">0</span>,<span class="dv">0</span>,<span class="dv">0</span>,<span class="dv">0</span>,<span class="dv">0</span>,</span>
+<span id="cb55-2"><a href="#cb55-2" aria-hidden="true" tabindex="-1"></a>          <span class="dv">0</span>,<span class="dv">0</span>,<span class="dv">0</span>,<span class="dv">0</span>,<span class="dv">0</span>,<span class="dv">0</span>,<span class="dv">0</span>,<span class="dv">0</span>,<span class="dv">0</span>,<span class="dv">0</span>,<span class="dv">0</span>,<span class="dv">0</span>,<span class="dv">1</span>,<span class="dv">1</span>,<span class="dv">1</span>,<span class="dv">1</span>,<span class="dv">1</span>,<span class="dv">1</span>,<span class="dv">1</span>,<span class="dv">1</span>,<span class="dv">1</span>,<span class="dv">1</span>,<span class="dv">1</span>,<span class="dv">1</span>,</span>
+<span id="cb55-3"><a href="#cb55-3" aria-hidden="true" tabindex="-1"></a>          <span class="dv">1</span>,<span class="dv">1</span>,<span class="dv">1</span>,<span class="dv">1</span>,<span class="dv">1</span>,<span class="dv">1</span>,<span class="dv">1</span>,<span class="dv">1</span>,<span class="dv">1</span>,<span class="dv">1</span>,<span class="dv">1</span>,<span class="dv">1</span>,<span class="dv">1</span>,<span class="dv">1</span>,<span class="dv">1</span>,<span class="dv">1</span>,<span class="dv">1</span>,<span class="dv">1</span>,<span class="dv">1</span>,<span class="dv">1</span>)</span>
+<span id="cb55-4"><a href="#cb55-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb55-5"><a href="#cb55-5" aria-hidden="true" tabindex="-1"></a>Group.B<span class="ot">=</span><span class="fu">c</span>(<span class="dv">0</span>,<span class="dv">0</span>,<span class="dv">0</span>,<span class="dv">0</span>,<span class="dv">0</span>,<span class="dv">0</span>,<span class="dv">0</span>,<span class="dv">0</span>,<span class="dv">0</span>,<span class="dv">0</span>,<span class="dv">0</span>,<span class="dv">0</span>,<span class="dv">0</span>,<span class="dv">0</span>,<span class="dv">0</span>,<span class="dv">0</span>,<span class="dv">0</span>,<span class="dv">0</span>,<span class="dv">0</span>,<span class="dv">0</span>,<span class="dv">0</span>,<span class="dv">0</span>,<span class="dv">0</span>,<span class="dv">0</span>,</span>
+<span id="cb55-6"><a href="#cb55-6" aria-hidden="true" tabindex="-1"></a>          <span class="dv">0</span>,<span class="dv">0</span>,<span class="dv">0</span>,<span class="dv">0</span>,<span class="dv">0</span>,<span class="dv">0</span>,<span class="dv">0</span>,<span class="dv">0</span>,<span class="dv">0</span>,<span class="dv">0</span>,<span class="dv">0</span>,<span class="dv">0</span>,<span class="dv">2</span>,<span class="dv">2</span>,<span class="dv">2</span>,<span class="dv">2</span>,<span class="dv">2</span>,<span class="dv">2</span>,<span class="dv">2</span>,<span class="dv">2</span>,<span class="dv">2</span>,<span class="dv">2</span>,<span class="dv">2</span>,<span class="dv">2</span>,</span>
+<span id="cb55-7"><a href="#cb55-7" aria-hidden="true" tabindex="-1"></a>          <span class="dv">2</span>,<span class="dv">2</span>,<span class="dv">2</span>,<span class="dv">2</span>,<span class="dv">2</span>,<span class="dv">2</span>,<span class="dv">2</span>,<span class="dv">2</span>,<span class="dv">2</span>,<span class="dv">2</span>,<span class="dv">2</span>,<span class="dv">2</span>,<span class="dv">2</span>,<span class="dv">2</span>,<span class="dv">2</span>,<span class="dv">2</span>,<span class="dv">2</span>,<span class="dv">2</span>,<span class="dv">2</span>,<span class="dv">2</span>)</span>
+<span id="cb55-8"><a href="#cb55-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb55-9"><a href="#cb55-9" aria-hidden="true" tabindex="-1"></a><span class="fu">median</span>(Group.A) <span class="co"># 0</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 0</code></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb57"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb57-1"><a href="#cb57-1" aria-hidden="true" tabindex="-1"></a><span class="fu">median</span>(Group.B) <span class="co"># 0</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 0</code></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb59"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb59-1"><a href="#cb59-1" aria-hidden="true" tabindex="-1"></a><span class="fu">sd</span>(Group.A) <span class="co"># 0.5</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 0.5028453</code></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb61"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb61-1"><a href="#cb61-1" aria-hidden="true" tabindex="-1"></a><span class="fu">sd</span>(Group.B) <span class="co"># 1.0</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 1.005691</code></pre>
+</div>
+</div>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb63"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb63-1"><a href="#cb63-1" aria-hidden="true" tabindex="-1"></a><span class="fu">wilcox.test</span>(Group.A, Group.B)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+    Wilcoxon rank sum test with continuity correction
+
+data:  Group.A and Group.B
+W = 1800, p-value = 0.01428
+alternative hypothesis: true location shift is not equal to 0</code></pre>
+</div>
+</div>
+<p>The Wilcoxon rank sum test gives p = 0.014, indicating that the two groups are significantly different. This result shows that, although group A and group B have identical medians, they differ in scale (standard deviation), and differ significantly according to the Wilcoxon test. In this situation, the Wilcoxon test is said to be a test for “stochastic dominance”, which means that one group tends to have higher values than the other group. A caveat is that the calculation of the p-value for the Wilcoxon test assumes treatment groups do not differ in scale but differ only by a shift in their location.</p>
+</section>
+<section id="when-should-i-use-t-tests-and-anova-versus-rank-methods" class="level2" data-number="5.7">
+<h2 data-number="5.7" class="anchored" data-anchor-id="when-should-i-use-t-tests-and-anova-versus-rank-methods"><span class="header-section-number">5.7</span> When should I use t-tests and ANOVA versus rank methods?</h2>
+<p>T-tests and the classical rank methods we looked at in this chapter may sometimes be sufficient to get good results. Their weakness is that these tests only allow for one explanatory variable. For most analyses, you are more likely to get p &lt; 0.05 if you include additional explanatory variables in an analysis of variance, or if you use the robust and rank-based methods described in the previous and next chapters that allow for more than one explanatory variable.</p>
+<p>The Wilcoxon, Kruskal-Wallis tests don’t require the assumption of normal distributions, and are not affected by outliers, so why don’t we always use them instead of t-tests and one-way ANOVA? There are several considerations.</p>
+<p>If the data are exactly normally distributed, then ANOVA and t-tests have slightly more power to detect differences than do the standard versions of the rank tests. However, even with small or moderate deviations from normality, the rank tests will usually have power equal to or greater than the power of the tests that assume normality. When the data within treatment groups is substantially non-normal, the rank tests will pretty reliably have power equal to or greater than the tests that assume normality.</p>
+<p>When you have a very small sample size (5 or less per group) it may be mathematically nearly impossible to get a significant p-value using a rank test. But it may be possible to get significance using a t-test or other parametric test.</p>
+<p>One criticism of using rank methods used to be the difficulty of calculating confidence intervals. Before modern computers existed, getting confidence intervals for rank methods was harder than for methods that assume a normal distribution. But with today’s computers it is easy to get confidence intervals for rank methods.</p>
+<p>Another criticism of rank methods is the difficulty in understanding the effect size, particularly among readers who are not familiar with the Hodges-Lehmann estimator.</p>
+
+
+<!-- -->
+
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    // Ensure there is a toggle, if there isn't float one in the top right
+    if (window.document.querySelector('.quarto-color-scheme-toggle') === null) {
+      const a = window.document.createElement('a');
+      a.classList.add('top-right');
+      a.classList.add('quarto-color-scheme-toggle');
+      a.href = "";
+      a.onclick = function() { try { window.quartoToggleColorScheme(); } catch {} return false; };
+      const i = window.document.createElement("i");
+      i.classList.add('bi');
+      a.appendChild(i);
+      window.document.body.appendChild(a);
+    }
+    setColorSchemeToggle(hasAlternateSentinel())
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Copied!");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Copied!");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+      const outerScaffold = trigger.parentElement.cloneNode(true);
+      const codeEl = outerScaffold.querySelector('code');
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+    const viewSource = window.document.getElementById('quarto-view-source') ||
+                       window.document.getElementById('quarto-code-tools-source');
+    if (viewSource) {
+      const sourceUrl = viewSource.getAttribute("data-quarto-source-url");
+      viewSource.addEventListener("click", function(e) {
+        if (sourceUrl) {
+          // rstudio viewer pane
+          if (/\bcapabilities=\b/.test(window.location)) {
+            window.open(sourceUrl);
+          } else {
+            window.location.href = sourceUrl;
+          }
+        } else {
+          const modal = new bootstrap.Modal(document.getElementById('quarto-embedded-source-code-modal'));
+          modal.show();
+        }
+        return false;
+      });
+    }
+    function toggleCodeHandler(show) {
+      return function(e) {
+        const detailsSrc = window.document.querySelectorAll(".cell > details > .sourceCode");
+        for (let i=0; i<detailsSrc.length; i++) {
+          const details = detailsSrc[i].parentElement;
+          if (show) {
+            details.open = true;
+          } else {
+            details.removeAttribute("open");
+          }
+        }
+        const cellCodeDivs = window.document.querySelectorAll(".cell > .sourceCode");
+        const fromCls = show ? "hidden" : "unhidden";
+        const toCls = show ? "unhidden" : "hidden";
+        for (let i=0; i<cellCodeDivs.length; i++) {
+          const codeDiv = cellCodeDivs[i];
+          if (codeDiv.classList.contains(fromCls)) {
+            codeDiv.classList.remove(fromCls);
+            codeDiv.classList.add(toCls);
+          } 
+        }
+        return false;
+      }
+    }
+    const hideAllCode = window.document.getElementById("quarto-hide-all-code");
+    if (hideAllCode) {
+      hideAllCode.addEventListener("click", toggleCodeHandler(false));
+    }
+    const showAllCode = window.document.getElementById("quarto-show-all-code");
+    if (showAllCode) {
+      showAllCode.addEventListener("click", toggleCodeHandler(true));
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp('/' + window.location.host + '/');
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script>
+<nav class="page-navigation">
+  <div class="nav-page nav-page-previous">
+      <a href="../chapters/ch04-robust-tests.html" class="pagination-link" aria-label="If you have normally distributed data with outliers: Robust tests">
+        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text"><span class="chapter-number">4</span>&nbsp; <span class="chapter-title">If you have normally distributed data with outliers: Robust tests</span></span>
+      </a>          
+  </div>
+  <div class="nav-page nav-page-next">
+      <a href="../chapters/ch06-rank-more-than-one-predictor.html" class="pagination-link" aria-label="If you have non-normal data and more than one explanatory variable: Rank methods for multiple explanatory variables">
+        <span class="nav-page-text"><span class="chapter-number">6</span>&nbsp; <span class="chapter-title">If you have non-normal data and more than one explanatory variable: Rank methods for multiple explanatory variables</span></span> <i class="bi bi-arrow-right-short"></i>
+      </a>
+  </div>
+</nav><div class="modal fade" id="quarto-embedded-source-code-modal" tabindex="-1" aria-labelledby="quarto-embedded-source-code-modal-label" aria-hidden="true"><div class="modal-dialog modal-dialog-scrollable"><div class="modal-content"><div class="modal-header"><h5 class="modal-title" id="quarto-embedded-source-code-modal-label">Source Code</h5><button class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body"><div class="">
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb65" data-shortcodes="false"><pre class="sourceCode markdown code-with-copy"><code class="sourceCode markdown"><span id="cb65-1"><a href="#cb65-1" aria-hidden="true" tabindex="-1"></a><span class="fu"># If you have non-normal data and one explanatory variable: Wilcoxon and Kruskal-Wallis </span></span>
+<span id="cb65-2"><a href="#cb65-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb65-3"><a href="#cb65-3" aria-hidden="true" tabindex="-1"></a>If you have outliers in your data, or the data within each treatment group are not normally distributed, t-tests are more likely to give non-significant p-values. Outliers and non-normal distributions reduce the power of t-tests to detect significant effects. Even when graphs of your data show that there is a difference among the groups, you may get non-significant p-values from t-tests as a result of the outliers or non-normal distributions.</span>
+<span id="cb65-4"><a href="#cb65-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb65-5"><a href="#cb65-5" aria-hidden="true" tabindex="-1"></a>In these cases, the Wilcoxon rank tests and Kruskal-Wallis tests are alternatives to the t-test and anova. However, none of these methods allow you to have more than one explanatory variable. For this reason, I suggest that, instead of using these methods, you consider the methods that allow for more than one explanatory variable, described in the following chapter.</span>
+<span id="cb65-6"><a href="#cb65-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb65-7"><a href="#cb65-7" aria-hidden="true" tabindex="-1"></a>If your sample size is large, deviations from normal distribution may be less of a problem for t-tests and ANOVA. However, even with a large sample size, you can often increase power by using a rank method.</span>
+<span id="cb65-8"><a href="#cb65-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb65-9"><a href="#cb65-9" aria-hidden="true" tabindex="-1"></a>Load these libraries to run the examples in this chapter.</span>
+<span id="cb65-10"><a href="#cb65-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb65-13"><a href="#cb65-13" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb65-14"><a href="#cb65-14" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidyverse)</span>
+<span id="cb65-15"><a href="#cb65-15" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(coin)</span>
+<span id="cb65-16"><a href="#cb65-16" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb65-17"><a href="#cb65-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb65-18"><a href="#cb65-18" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb65-19"><a href="#cb65-19" aria-hidden="true" tabindex="-1"></a>As an example of what we mean by ranks, here are observations from the sleep data frame from R with the original values of the variable extra and the values of extra converted to ranks. You can use the help(sleep) command to read a description of the data set.</span>
+<span id="cb65-20"><a href="#cb65-20" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb65-23"><a href="#cb65-23" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb65-24"><a href="#cb65-24" aria-hidden="true" tabindex="-1"></a>ranked.data  <span class="ot">=</span> <span class="fu">data.frame</span>(<span class="at">extra =</span> <span class="fu">sort</span>(sleep<span class="sc">$</span>extra),</span>
+<span id="cb65-25"><a href="#cb65-25" aria-hidden="true" tabindex="-1"></a>  <span class="at">ranked.extra =</span> <span class="fu">rank</span>(<span class="fu">sort</span>(sleep<span class="sc">$</span>extra)))</span>
+<span id="cb65-26"><a href="#cb65-26" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb65-27"><a href="#cb65-27" aria-hidden="true" tabindex="-1"></a>ranked.data</span>
+<span id="cb65-28"><a href="#cb65-28" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb65-29"><a href="#cb65-29" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb65-30"><a href="#cb65-30" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb65-31"><a href="#cb65-31" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb65-32"><a href="#cb65-32" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb65-33"><a href="#cb65-33" aria-hidden="true" tabindex="-1"></a><span class="fu">## Alternative to two-sample t-test: Wilcoxon rank sum for two independent samples</span></span>
+<span id="cb65-34"><a href="#cb65-34" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb65-35"><a href="#cb65-35" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb65-36"><a href="#cb65-36" aria-hidden="true" tabindex="-1"></a>Let’s look at the colon cancer example from the previous chapter, where we use a t-test for the question, do colon cancer patients have elevated levels of the mucin protein in their blood?  </span>
+<span id="cb65-37"><a href="#cb65-37" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb65-38"><a href="#cb65-38" aria-hidden="true" tabindex="-1"></a>Here is R code with the data and a graph. </span>
+<span id="cb65-39"><a href="#cb65-39" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb65-40"><a href="#cb65-40" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb65-43"><a href="#cb65-43" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb65-44"><a href="#cb65-44" aria-hidden="true" tabindex="-1"></a>cancer<span class="ot">=</span><span class="fu">c</span>(<span class="dv">83</span>, <span class="dv">89</span>, <span class="dv">90</span>, <span class="dv">93</span>, <span class="dv">98</span>)</span>
+<span id="cb65-45"><a href="#cb65-45" aria-hidden="true" tabindex="-1"></a>controls<span class="ot">=</span><span class="fu">c</span>(<span class="dv">99</span>, <span class="dv">100</span>, <span class="dv">103</span>, <span class="dv">104</span>,  <span class="dv">141</span>)</span>
+<span id="cb65-46"><a href="#cb65-46" aria-hidden="true" tabindex="-1"></a>Mucin<span class="ot">=</span><span class="fu">c</span>(cancer,controls)</span>
+<span id="cb65-47"><a href="#cb65-47" aria-hidden="true" tabindex="-1"></a>Diagnosis<span class="ot">=</span><span class="fu">c</span>(<span class="fu">rep</span>(<span class="st">"Cancer"</span>,<span class="dv">5</span>), <span class="fu">rep</span>(<span class="st">"Controls"</span>,<span class="dv">5</span>))</span>
+<span id="cb65-48"><a href="#cb65-48" aria-hidden="true" tabindex="-1"></a>Diagnosis <span class="ot">=</span> <span class="fu">as.factor</span>(Diagnosis) <span class="co"># Some functions require factors.</span></span>
+<span id="cb65-49"><a href="#cb65-49" aria-hidden="true" tabindex="-1"></a>colon.data<span class="ot">=</span><span class="fu">data.frame</span>(Diagnosis, Mucin)</span>
+<span id="cb65-50"><a href="#cb65-50" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb65-51"><a href="#cb65-51" aria-hidden="true" tabindex="-1"></a>colon.data</span>
+<span id="cb65-52"><a href="#cb65-52" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb65-53"><a href="#cb65-53" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb65-54"><a href="#cb65-54" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb65-57"><a href="#cb65-57" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb65-58"><a href="#cb65-58" aria-hidden="true" tabindex="-1"></a><span class="fu">with</span>(colon.data, <span class="fu">boxplot</span>(Mucin <span class="sc">~</span> Diagnosis, <span class="at">ylab=</span><span class="st">"Mucin"</span>, <span class="at">ylim=</span><span class="fu">c</span>(<span class="dv">50</span>,<span class="dv">150</span>)))</span>
+<span id="cb65-59"><a href="#cb65-59" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb65-60"><a href="#cb65-60" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb65-61"><a href="#cb65-61" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb65-62"><a href="#cb65-62" aria-hidden="true" tabindex="-1"></a>The boxplot and data show that there is complete separation between the two groups. In fact, all the cancer subjects have lower mucin values (98 or less) than any of the controls (99 or greater). But notice the large outlier in the control group, where one subject has a mucin value of 141.</span>
+<span id="cb65-63"><a href="#cb65-63" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb65-64"><a href="#cb65-64" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb65-65"><a href="#cb65-65" aria-hidden="true" tabindex="-1"></a>Here are the means and medians of the two groups. Notice that the mean of the control group, 109.4, is larger than the median, 103. This difference is due to the outlier.</span>
+<span id="cb65-66"><a href="#cb65-66" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb65-67"><a href="#cb65-67" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb65-70"><a href="#cb65-70" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb65-71"><a href="#cb65-71" aria-hidden="true" tabindex="-1"></a><span class="fu">aggregate</span>(Mucin <span class="sc">~</span> Diagnosis, colon.data, mean)</span>
+<span id="cb65-72"><a href="#cb65-72" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb65-73"><a href="#cb65-73" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb65-74"><a href="#cb65-74" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb65-77"><a href="#cb65-77" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb65-78"><a href="#cb65-78" aria-hidden="true" tabindex="-1"></a><span class="fu">aggregate</span>(Mucin <span class="sc">~</span> Diagnosis, colon.data, median)</span>
+<span id="cb65-79"><a href="#cb65-79" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb65-80"><a href="#cb65-80" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb65-81"><a href="#cb65-81" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb65-82"><a href="#cb65-82" aria-hidden="true" tabindex="-1"></a>Here is the ordinary two-sample t-test, using the R function t.test.</span>
+<span id="cb65-83"><a href="#cb65-83" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb65-84"><a href="#cb65-84" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb65-87"><a href="#cb65-87" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb65-88"><a href="#cb65-88" aria-hidden="true" tabindex="-1"></a><span class="fu">with</span>(colon.data, <span class="fu">t.test</span>(Mucin <span class="sc">~</span> Diagnosis, <span class="at">var.equal=</span><span class="cn">TRUE</span>))</span>
+<span id="cb65-89"><a href="#cb65-89" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb65-90"><a href="#cb65-90" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb65-91"><a href="#cb65-91" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb65-92"><a href="#cb65-92" aria-hidden="true" tabindex="-1"></a>The output from the t-test includes the means of the two groups (90.6 and 109.4), and the 95% confidence interval for difference between the means of the two groups (-37.99 to 0.399). Because the 95% confidence interval includes 0, we get p &gt; 0.05.</span>
+<span id="cb65-93"><a href="#cb65-93" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb65-94"><a href="#cb65-94" aria-hidden="true" tabindex="-1"></a>The Wilcoxon rank sum test is an alternative to the t-test. The Wilcoxon rank sum test uses the rank value of each observation, rather than the actual value, so it is not affected by the outlier. </span>
+<span id="cb65-95"><a href="#cb65-95" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb65-96"><a href="#cb65-96" aria-hidden="true" tabindex="-1"></a>Here is the Wilcoxon test using the R function wilcox.test.</span>
+<span id="cb65-97"><a href="#cb65-97" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb65-98"><a href="#cb65-98" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb65-101"><a href="#cb65-101" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb65-102"><a href="#cb65-102" aria-hidden="true" tabindex="-1"></a><span class="fu">with</span>(colon.data, <span class="fu">wilcox.test</span>(Mucin <span class="sc">~</span> Diagnosis, <span class="at">conf.int=</span><span class="cn">TRUE</span>))</span>
+<span id="cb65-103"><a href="#cb65-103" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb65-104"><a href="#cb65-104" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb65-105"><a href="#cb65-105" aria-hidden="true" tabindex="-1"></a>Using the rank values, the Wilcoxon rank sum test yields a p-value of p = 0.0079. We reject the null hypothesis and conclude that colon cancer patients have mucin levels different from those of healthy controls.</span>
+<span id="cb65-106"><a href="#cb65-106" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb65-107"><a href="#cb65-107" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb65-108"><a href="#cb65-108" aria-hidden="true" tabindex="-1"></a><span class="fu">### Problems with too many tied values and how to fix them</span></span>
+<span id="cb65-109"><a href="#cb65-109" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb65-110"><a href="#cb65-110" aria-hidden="true" tabindex="-1"></a>You may sometimes have a data set with a lot of observations that have the same value (tied values). Base R's wilcox.test() handles ties via normal approximations; it sometimes gives warning message with small sample sizes. If that happens, an alternative is to use wilcox_test() from the coin package. The coin::wilcox_test() function handles exact distribution adjustments for ties. </span>
+<span id="cb65-111"><a href="#cb65-111" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb65-112"><a href="#cb65-112" aria-hidden="true" tabindex="-1"></a>In case you need it, here is the code to run the coin::wilcox_test.</span>
+<span id="cb65-113"><a href="#cb65-113" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb65-116"><a href="#cb65-116" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb65-117"><a href="#cb65-117" aria-hidden="true" tabindex="-1"></a><span class="fu">with</span>(colon.data, coin<span class="sc">::</span><span class="fu">wilcox_test</span>(Mucin <span class="sc">~</span> Diagnosis, <span class="at">conf.int=</span><span class="cn">TRUE</span>))</span>
+<span id="cb65-118"><a href="#cb65-118" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb65-119"><a href="#cb65-119" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb65-120"><a href="#cb65-120" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb65-121"><a href="#cb65-121" aria-hidden="true" tabindex="-1"></a><span class="fu">## How do you quantify the difference between two treatment groups using ranks? The Hodges-Lehmann location shift estimator</span></span>
+<span id="cb65-122"><a href="#cb65-122" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb65-123"><a href="#cb65-123" aria-hidden="true" tabindex="-1"></a>When you compare two treatment groups using a t-test, the output tells you the means of the two group and the difference between the means. </span>
+<span id="cb65-124"><a href="#cb65-124" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb65-125"><a href="#cb65-125" aria-hidden="true" tabindex="-1"></a>When we compare the ranks of two treatment groups, the most commonly used descriptor of differences is the Hodges-Lehmann (HL) location shift estimator. The HL estimator is the median of all paired differences between the two treatment groups. It's easier to understand with a simple example.</span>
+<span id="cb65-126"><a href="#cb65-126" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb65-127"><a href="#cb65-127" aria-hidden="true" tabindex="-1"></a>Suppose we have the following data on two groups.</span>
+<span id="cb65-130"><a href="#cb65-130" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb65-131"><a href="#cb65-131" aria-hidden="true" tabindex="-1"></a>treatment <span class="ot">=</span> <span class="fu">c</span>(<span class="dv">5</span>, <span class="dv">7</span>, <span class="dv">8</span>, <span class="dv">10</span>, <span class="dv">12</span>, <span class="dv">15</span>, <span class="dv">18</span>)  </span>
+<span id="cb65-132"><a href="#cb65-132" aria-hidden="true" tabindex="-1"></a>control <span class="ot">=</span> <span class="fu">c</span>(<span class="dv">9</span>, <span class="dv">11</span>, <span class="dv">13</span>, <span class="dv">14</span>, <span class="dv">16</span>, <span class="dv">20</span>, <span class="dv">25</span>)</span>
+<span id="cb65-133"><a href="#cb65-133" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb65-134"><a href="#cb65-134" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb65-135"><a href="#cb65-135" aria-hidden="true" tabindex="-1"></a>We calculate all the pairwise (treatment - control) differences.</span>
+<span id="cb65-138"><a href="#cb65-138" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb65-139"><a href="#cb65-139" aria-hidden="true" tabindex="-1"></a><span class="co"># Calculate all pairwise treatment - control differences</span></span>
+<span id="cb65-140"><a href="#cb65-140" aria-hidden="true" tabindex="-1"></a>cross_diffs <span class="ot">=</span> <span class="fu">outer</span>(treatment, control, <span class="st">"-"</span>) </span>
+<span id="cb65-141"><a href="#cb65-141" aria-hidden="true" tabindex="-1"></a>cross_diffs</span>
+<span id="cb65-142"><a href="#cb65-142" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb65-143"><a href="#cb65-143" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb65-144"><a href="#cb65-144" aria-hidden="true" tabindex="-1"></a>Sort the pairwise differences.</span>
+<span id="cb65-147"><a href="#cb65-147" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb65-148"><a href="#cb65-148" aria-hidden="true" tabindex="-1"></a><span class="fu">sort</span>(cross_diffs)</span>
+<span id="cb65-149"><a href="#cb65-149" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb65-150"><a href="#cb65-150" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb65-151"><a href="#cb65-151" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb65-152"><a href="#cb65-152" aria-hidden="true" tabindex="-1"></a>The Hodges-Lehmann (HL) estimator is then the median of all the pairwise differences. </span>
+<span id="cb65-155"><a href="#cb65-155" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb65-156"><a href="#cb65-156" aria-hidden="true" tabindex="-1"></a><span class="fu">median</span>(cross_diffs)</span>
+<span id="cb65-157"><a href="#cb65-157" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb65-158"><a href="#cb65-158" aria-hidden="true" tabindex="-1"></a>The Hodges-Lehmann (HL) estimator tells us that the treatment group is shifted by -4 units compared to the control group.</span>
+<span id="cb65-159"><a href="#cb65-159" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb65-160"><a href="#cb65-160" aria-hidden="true" tabindex="-1"></a>Notice that the HL estimator is an estimate of a shift parameter, that is, the amount by which the entire distribution of outcomes in one group is displaced relative to the other. This is not the same as the difference in means or the difference in medians. Instead, it is based on the differences between all the points in each group.</span>
+<span id="cb65-161"><a href="#cb65-161" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb65-162"><a href="#cb65-162" aria-hidden="true" tabindex="-1"></a>In this particular example, the median of the differences (the HL estimator) happens to be equal to the difference of the medians, but this need not always be true.</span>
+<span id="cb65-163"><a href="#cb65-163" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb65-166"><a href="#cb65-166" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb65-167"><a href="#cb65-167" aria-hidden="true" tabindex="-1"></a><span class="fu">median</span>(treatment)</span>
+<span id="cb65-168"><a href="#cb65-168" aria-hidden="true" tabindex="-1"></a><span class="fu">median</span>(control)</span>
+<span id="cb65-169"><a href="#cb65-169" aria-hidden="true" tabindex="-1"></a><span class="fu">median</span>(treatment) <span class="sc">-</span> <span class="fu">median</span>(control)</span>
+<span id="cb65-170"><a href="#cb65-170" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb65-171"><a href="#cb65-171" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb65-172"><a href="#cb65-172" aria-hidden="true" tabindex="-1"></a>Let's look again at the colon data example. The output from the Wilcoxon test includes the sample estimate of the difference in location. The difference in location is the Hodges-Lehmann estimator, which is -13 for these data. </span>
+<span id="cb65-173"><a href="#cb65-173" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb65-176"><a href="#cb65-176" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb65-177"><a href="#cb65-177" aria-hidden="true" tabindex="-1"></a><span class="fu">with</span>(colon.data, <span class="fu">wilcox.test</span>(Mucin <span class="sc">~</span> Diagnosis, <span class="at">conf.int=</span><span class="cn">TRUE</span>))</span>
+<span id="cb65-178"><a href="#cb65-178" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb65-179"><a href="#cb65-179" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb65-180"><a href="#cb65-180" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb65-181"><a href="#cb65-181" aria-hidden="true" tabindex="-1"></a>The 95% confidence interval for the difference in location for these data is -51 to -5 (the Moses confidence interval). Because the 95% confidence interval does not include 0, we get p &lt; 0.05. The Hodges-Lehmann estimator is not necessarily equal to the difference between the medians of the two groups. As described below, there may be no difference between the group medians. But if one group tends to have higher (or lower) values than the other group (stochastic dominance), the Wilcoxon test can give p &lt; 0.05 even if the medians are identical.</span>
+<span id="cb65-182"><a href="#cb65-182" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb65-183"><a href="#cb65-183" aria-hidden="true" tabindex="-1"></a><span class="fu">## Sample size for a t-test to give power of 0.8 for the colon data</span></span>
+<span id="cb65-184"><a href="#cb65-184" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb65-185"><a href="#cb65-185" aria-hidden="true" tabindex="-1"></a>What sample size would we need if we wanted to get a significant p-value for the t-test for the colon data? The difference between the group means is delta = 109.4-90.6 = 18.8. The standard deviation in the control group is sd = 17.8. We’ll use the usual significance level (alpha) of sig.level = 0.05, and desired power of 0.8. The function power.t.test gives the required sample size for these assumptions:</span>
+<span id="cb65-186"><a href="#cb65-186" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb65-187"><a href="#cb65-187" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb65-190"><a href="#cb65-190" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb65-191"><a href="#cb65-191" aria-hidden="true" tabindex="-1"></a><span class="fu">power.t.test</span>(<span class="at">delta =</span> <span class="fl">18.8</span>, <span class="at">sd =</span> <span class="fl">17.8</span>, <span class="at">sig.level =</span> <span class="fl">0.05</span>, <span class="at">power =</span> <span class="fl">0.8</span>)</span>
+<span id="cb65-192"><a href="#cb65-192" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb65-193"><a href="#cb65-193" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb65-194"><a href="#cb65-194" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb65-195"><a href="#cb65-195" aria-hidden="true" tabindex="-1"></a>We would need a sample size of 15 per group, 30 total, to have an 80% chance of getting p &lt; 0.05 using a t-test. The chapters on sample size and power provide more explanation.</span>
+<span id="cb65-196"><a href="#cb65-196" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb65-197"><a href="#cb65-197" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb65-198"><a href="#cb65-198" aria-hidden="true" tabindex="-1"></a><span class="fu">## Alternative to paired t-test: Wilcoxon signed rank test</span></span>
+<span id="cb65-199"><a href="#cb65-199" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb65-200"><a href="#cb65-200" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb65-201"><a href="#cb65-201" aria-hidden="true" tabindex="-1"></a>The paired t-test is often used to test for difference in paired (matched) samples, such as the difference before and after treatment. The Wilcoxon signed rank test is a rank-based analog of the paired t-test. Here's an example.</span>
+<span id="cb65-202"><a href="#cb65-202" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb65-203"><a href="#cb65-203" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb65-204"><a href="#cb65-204" aria-hidden="true" tabindex="-1"></a>Suppose we would like to know if bears lose weight between winter and spring, while they are hibernating. We collect the following data.</span>
+<span id="cb65-205"><a href="#cb65-205" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb65-206"><a href="#cb65-206" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb65-209"><a href="#cb65-209" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb65-210"><a href="#cb65-210" aria-hidden="true" tabindex="-1"></a>bears.winter<span class="ot">=</span><span class="fu">c</span>(<span class="dv">300</span>,<span class="dv">470</span>,<span class="dv">550</span>,<span class="dv">760</span>,<span class="dv">800</span>,<span class="dv">955</span>,<span class="dv">1260</span>,<span class="dv">1290</span>)</span>
+<span id="cb65-211"><a href="#cb65-211" aria-hidden="true" tabindex="-1"></a>bears.spring<span class="ot">=</span><span class="fu">c</span>(<span class="dv">280</span>,<span class="dv">445</span>,<span class="dv">520</span>,<span class="dv">715</span>,<span class="dv">750</span>,<span class="dv">890</span>,<span class="dv">990</span>,<span class="dv">900</span>)</span>
+<span id="cb65-212"><a href="#cb65-212" aria-hidden="true" tabindex="-1"></a>Weight<span class="ot">=</span><span class="fu">c</span>(bears.winter, bears.spring)</span>
+<span id="cb65-213"><a href="#cb65-213" aria-hidden="true" tabindex="-1"></a>Season<span class="ot">=</span><span class="fu">c</span>(<span class="fu">rep</span>(<span class="st">"Winter"</span>,<span class="dv">8</span>), <span class="fu">rep</span>(<span class="st">"Spring"</span>,<span class="dv">8</span>))</span>
+<span id="cb65-214"><a href="#cb65-214" aria-hidden="true" tabindex="-1"></a>bear.data<span class="ot">=</span><span class="fu">data.frame</span>(Season,Weight)</span>
+<span id="cb65-215"><a href="#cb65-215" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb65-216"><a href="#cb65-216" aria-hidden="true" tabindex="-1"></a>bear.data</span>
+<span id="cb65-217"><a href="#cb65-217" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb65-218"><a href="#cb65-218" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb65-219"><a href="#cb65-219" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb65-220"><a href="#cb65-220" aria-hidden="true" tabindex="-1"></a>The graph of the weight change shows that there are two large outliers.</span>
+<span id="cb65-221"><a href="#cb65-221" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb65-222"><a href="#cb65-222" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb65-225"><a href="#cb65-225" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb65-226"><a href="#cb65-226" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(bears.winter<span class="sc">-</span>bears.spring)</span>
+<span id="cb65-227"><a href="#cb65-227" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb65-228"><a href="#cb65-228" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb65-229"><a href="#cb65-229" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb65-230"><a href="#cb65-230" aria-hidden="true" tabindex="-1"></a>We’ll first use the paired t-test to examine the change in weight of bears, where the same bears were weighed in winter and in spring. Then we’ll analyze the data using the Wilcoxon signed rank test.</span>
+<span id="cb65-231"><a href="#cb65-231" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb65-232"><a href="#cb65-232" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb65-235"><a href="#cb65-235" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb65-236"><a href="#cb65-236" aria-hidden="true" tabindex="-1"></a><span class="fu">t.test</span>(bears.winter, bears.spring, <span class="at">paired=</span><span class="cn">TRUE</span>)</span>
+<span id="cb65-237"><a href="#cb65-237" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb65-238"><a href="#cb65-238" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb65-239"><a href="#cb65-239" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb65-240"><a href="#cb65-240" aria-hidden="true" tabindex="-1"></a>The paired t-test gives p = 0.057, indicating that bears do not lose weight while hibernating. </span>
+<span id="cb65-241"><a href="#cb65-241" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb65-242"><a href="#cb65-242" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb65-245"><a href="#cb65-245" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb65-246"><a href="#cb65-246" aria-hidden="true" tabindex="-1"></a><span class="fu">wilcox.test</span>(bears.winter, bears.spring, <span class="at">paired=</span><span class="cn">TRUE</span>)</span>
+<span id="cb65-247"><a href="#cb65-247" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb65-248"><a href="#cb65-248" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb65-249"><a href="#cb65-249" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb65-250"><a href="#cb65-250" aria-hidden="true" tabindex="-1"></a>The Wilcoxon signed rank test gives a significant result, p = 0.0078, indicating that bears lose weight during winter hibernation. </span>
+<span id="cb65-251"><a href="#cb65-251" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb65-252"><a href="#cb65-252" aria-hidden="true" tabindex="-1"></a>Notice that all the bears actually lose weight. Using the paired t-test, the p-value is not significant, and we conclude that bears don’t lose weight. The Wilcoxon signed rank test gives us p =0.0078, so we reject the null hypothesis, and conclude that bears do lose weight.</span>
+<span id="cb65-253"><a href="#cb65-253" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb65-254"><a href="#cb65-254" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb65-255"><a href="#cb65-255" aria-hidden="true" tabindex="-1"></a><span class="fu">## Rank alternatives to one-way ANOVA: Kruskal-Wallis and Rfit</span></span>
+<span id="cb65-256"><a href="#cb65-256" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb65-257"><a href="#cb65-257" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb65-258"><a href="#cb65-258" aria-hidden="true" tabindex="-1"></a>One-way ANOVA allows us to compare two or more treatment groups. The Kruskal-Wallis test is one rank alternative. Another alternative is the rank-based oneway.rfit function from the package Rfit.</span>
+<span id="cb65-259"><a href="#cb65-259" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb65-260"><a href="#cb65-260" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb65-261"><a href="#cb65-261" aria-hidden="true" tabindex="-1"></a>We’ll use the quail data set from the Rfit package. Thirty-nine quail were randomized to one of 4 treatments for lowering low density lipoprotein (ldl). The variable “treat” is a factor. The variable ldl is the low density lipoprotein.</span>
+<span id="cb65-262"><a href="#cb65-262" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb65-265"><a href="#cb65-265" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb65-266"><a href="#cb65-266" aria-hidden="true" tabindex="-1"></a><span class="co"># install.packages("Rfit") # if not already installed</span></span>
+<span id="cb65-267"><a href="#cb65-267" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(Rfit)</span>
+<span id="cb65-268"><a href="#cb65-268" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb65-269"><a href="#cb65-269" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb65-272"><a href="#cb65-272" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb65-273"><a href="#cb65-273" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(quail, <span class="dv">10</span>) <span class="co"># display the first 10 rows of the quail data set</span></span>
+<span id="cb65-274"><a href="#cb65-274" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb65-275"><a href="#cb65-275" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb65-276"><a href="#cb65-276" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb65-279"><a href="#cb65-279" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb65-280"><a href="#cb65-280" aria-hidden="true" tabindex="-1"></a><span class="fu">with</span>(quail, <span class="fu">boxplot</span>(ldl <span class="sc">~</span> treat))</span>
+<span id="cb65-281"><a href="#cb65-281" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb65-282"><a href="#cb65-282" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb65-283"><a href="#cb65-283" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb65-284"><a href="#cb65-284" aria-hidden="true" tabindex="-1"></a>The boxplots suggest that there are differences among the 4 treatment groups. But there are large outliers that will adversely affect t-tests or ANOVA.</span>
+<span id="cb65-285"><a href="#cb65-285" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb65-286"><a href="#cb65-286" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb65-287"><a href="#cb65-287" aria-hidden="true" tabindex="-1"></a>Here are the median values for each treatment.</span>
+<span id="cb65-288"><a href="#cb65-288" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb65-289"><a href="#cb65-289" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb65-292"><a href="#cb65-292" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb65-293"><a href="#cb65-293" aria-hidden="true" tabindex="-1"></a><span class="fu">aggregate</span>(ldl<span class="sc">~</span>treat, quail, median)</span>
+<span id="cb65-294"><a href="#cb65-294" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb65-295"><a href="#cb65-295" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb65-296"><a href="#cb65-296" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb65-297"><a href="#cb65-297" aria-hidden="true" tabindex="-1"></a>We’ll begin with a standard one-way analysis of variance.</span>
+<span id="cb65-298"><a href="#cb65-298" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb65-299"><a href="#cb65-299" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb65-302"><a href="#cb65-302" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb65-303"><a href="#cb65-303" aria-hidden="true" tabindex="-1"></a>quail.lm.fit <span class="ot">=</span> <span class="fu">with</span>(quail, <span class="fu">lm</span>(ldl <span class="sc">~</span> treat))</span>
+<span id="cb65-304"><a href="#cb65-304" aria-hidden="true" tabindex="-1"></a><span class="fu">anova</span>(quail.lm.fit)</span>
+<span id="cb65-305"><a href="#cb65-305" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb65-306"><a href="#cb65-306" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb65-307"><a href="#cb65-307" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb65-308"><a href="#cb65-308" aria-hidden="true" tabindex="-1"></a>The one-way analysis of variance indicates that there is no difference among the 4 treatments (p = 0.345). </span>
+<span id="cb65-309"><a href="#cb65-309" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb65-310"><a href="#cb65-310" aria-hidden="true" tabindex="-1"></a>Next try the Kruskal-Wallis test.</span>
+<span id="cb65-311"><a href="#cb65-311" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb65-312"><a href="#cb65-312" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb65-315"><a href="#cb65-315" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb65-316"><a href="#cb65-316" aria-hidden="true" tabindex="-1"></a><span class="fu">with</span>(quail, <span class="fu">kruskal.test</span>(ldl, treat))</span>
+<span id="cb65-317"><a href="#cb65-317" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb65-318"><a href="#cb65-318" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb65-319"><a href="#cb65-319" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb65-320"><a href="#cb65-320" aria-hidden="true" tabindex="-1"></a>The Kruskal-Wallis test approaches significance, with p = 0.066.</span>
+<span id="cb65-321"><a href="#cb65-321" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb65-322"><a href="#cb65-322" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb65-323"><a href="#cb65-323" aria-hidden="true" tabindex="-1"></a>Alternatively, we can use the function oneway.rfit, from the Rfit package, to perform a rank-based analysis of the quail data. </span>
+<span id="cb65-324"><a href="#cb65-324" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb65-327"><a href="#cb65-327" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb65-328"><a href="#cb65-328" aria-hidden="true" tabindex="-1"></a>quail.oneway.rfit <span class="ot">=</span> <span class="fu">with</span>(quail, <span class="fu">oneway.rfit</span>(ldl, treat))</span>
+<span id="cb65-329"><a href="#cb65-329" aria-hidden="true" tabindex="-1"></a>quail.oneway.rfit</span>
+<span id="cb65-330"><a href="#cb65-330" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb65-331"><a href="#cb65-331" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb65-332"><a href="#cb65-332" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb65-333"><a href="#cb65-333" aria-hidden="true" tabindex="-1"></a>The oneway.rfit function indicates that there is a significant difference among the quail treatment groups p = 0.016394. The oneway.rfit output also shows pairwise comparisons that test for differences among the 4 treatment groups. By default, there is no p-value adjustment for multiple hypothesis testing. We can request estimates of the differences between each pair of treatments with confidence intervals adjusted for multiple comparisons by specifying method = ”tukey”.</span>
+<span id="cb65-334"><a href="#cb65-334" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb65-335"><a href="#cb65-335" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb65-338"><a href="#cb65-338" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb65-339"><a href="#cb65-339" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(quail.oneway.rfit, <span class="at">method=</span><span class="st">"tukey"</span>)</span>
+<span id="cb65-340"><a href="#cb65-340" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb65-341"><a href="#cb65-341" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb65-342"><a href="#cb65-342" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb65-343"><a href="#cb65-343" aria-hidden="true" tabindex="-1"></a>For the pairwise comparisons, if the lower and upper bound CI do not include zero then the pair of treatments differ after Tukey correction for multiple hypothesis testing. Thus, in the first row, which compares treatments 1 and 2, the lower and upper confidence bounds are -47.29 to -.27, which does not include zero, so the difference is significant.</span>
+<span id="cb65-344"><a href="#cb65-344" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb65-345"><a href="#cb65-345" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb65-346"><a href="#cb65-346" aria-hidden="true" tabindex="-1"></a><span class="fu">## Do the Wilcoxon tests and Kruskal-Wallis test compare the medians of groups?</span></span>
+<span id="cb65-347"><a href="#cb65-347" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb65-348"><a href="#cb65-348" aria-hidden="true" tabindex="-1"></a>If the treatment groups do not differ in shape, but differ only by a shift in their location, then the Wilcoxon tests and Kruskal-Wallis compare the medians of the treatment groups.  If the treatment groups differ in shape and location, these rank tests compare the entire distributions of the groups (that is, the ranks of all the observations, not just the median). </span>
+<span id="cb65-349"><a href="#cb65-349" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb65-350"><a href="#cb65-350" aria-hidden="true" tabindex="-1"></a>You can construct two treatment groups that have identical medians, but that differ in their rank sums, and will give significant differences in the Wilcoxon or Kruskal-Wallis tests.</span>
+<span id="cb65-351"><a href="#cb65-351" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb65-352"><a href="#cb65-352" aria-hidden="true" tabindex="-1"></a>For the following data, the medians of the groups are both zero but the standard deviations (shape) are different.</span>
+<span id="cb65-353"><a href="#cb65-353" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb65-356"><a href="#cb65-356" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb65-357"><a href="#cb65-357" aria-hidden="true" tabindex="-1"></a>Group.A<span class="ot">=</span><span class="fu">c</span>(<span class="dv">0</span>,<span class="dv">0</span>,<span class="dv">0</span>,<span class="dv">0</span>,<span class="dv">0</span>,<span class="dv">0</span>,<span class="dv">0</span>,<span class="dv">0</span>,<span class="dv">0</span>,<span class="dv">0</span>,<span class="dv">0</span>,<span class="dv">0</span>,<span class="dv">0</span>,<span class="dv">0</span>,<span class="dv">0</span>,<span class="dv">0</span>,<span class="dv">0</span>,<span class="dv">0</span>,<span class="dv">0</span>,<span class="dv">0</span>,<span class="dv">0</span>,<span class="dv">0</span>,<span class="dv">0</span>,<span class="dv">0</span>,</span>
+<span id="cb65-358"><a href="#cb65-358" aria-hidden="true" tabindex="-1"></a>          <span class="dv">0</span>,<span class="dv">0</span>,<span class="dv">0</span>,<span class="dv">0</span>,<span class="dv">0</span>,<span class="dv">0</span>,<span class="dv">0</span>,<span class="dv">0</span>,<span class="dv">0</span>,<span class="dv">0</span>,<span class="dv">0</span>,<span class="dv">0</span>,<span class="dv">1</span>,<span class="dv">1</span>,<span class="dv">1</span>,<span class="dv">1</span>,<span class="dv">1</span>,<span class="dv">1</span>,<span class="dv">1</span>,<span class="dv">1</span>,<span class="dv">1</span>,<span class="dv">1</span>,<span class="dv">1</span>,<span class="dv">1</span>,</span>
+<span id="cb65-359"><a href="#cb65-359" aria-hidden="true" tabindex="-1"></a>          <span class="dv">1</span>,<span class="dv">1</span>,<span class="dv">1</span>,<span class="dv">1</span>,<span class="dv">1</span>,<span class="dv">1</span>,<span class="dv">1</span>,<span class="dv">1</span>,<span class="dv">1</span>,<span class="dv">1</span>,<span class="dv">1</span>,<span class="dv">1</span>,<span class="dv">1</span>,<span class="dv">1</span>,<span class="dv">1</span>,<span class="dv">1</span>,<span class="dv">1</span>,<span class="dv">1</span>,<span class="dv">1</span>,<span class="dv">1</span>)</span>
+<span id="cb65-360"><a href="#cb65-360" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb65-361"><a href="#cb65-361" aria-hidden="true" tabindex="-1"></a>Group.B<span class="ot">=</span><span class="fu">c</span>(<span class="dv">0</span>,<span class="dv">0</span>,<span class="dv">0</span>,<span class="dv">0</span>,<span class="dv">0</span>,<span class="dv">0</span>,<span class="dv">0</span>,<span class="dv">0</span>,<span class="dv">0</span>,<span class="dv">0</span>,<span class="dv">0</span>,<span class="dv">0</span>,<span class="dv">0</span>,<span class="dv">0</span>,<span class="dv">0</span>,<span class="dv">0</span>,<span class="dv">0</span>,<span class="dv">0</span>,<span class="dv">0</span>,<span class="dv">0</span>,<span class="dv">0</span>,<span class="dv">0</span>,<span class="dv">0</span>,<span class="dv">0</span>,</span>
+<span id="cb65-362"><a href="#cb65-362" aria-hidden="true" tabindex="-1"></a>          <span class="dv">0</span>,<span class="dv">0</span>,<span class="dv">0</span>,<span class="dv">0</span>,<span class="dv">0</span>,<span class="dv">0</span>,<span class="dv">0</span>,<span class="dv">0</span>,<span class="dv">0</span>,<span class="dv">0</span>,<span class="dv">0</span>,<span class="dv">0</span>,<span class="dv">2</span>,<span class="dv">2</span>,<span class="dv">2</span>,<span class="dv">2</span>,<span class="dv">2</span>,<span class="dv">2</span>,<span class="dv">2</span>,<span class="dv">2</span>,<span class="dv">2</span>,<span class="dv">2</span>,<span class="dv">2</span>,<span class="dv">2</span>,</span>
+<span id="cb65-363"><a href="#cb65-363" aria-hidden="true" tabindex="-1"></a>          <span class="dv">2</span>,<span class="dv">2</span>,<span class="dv">2</span>,<span class="dv">2</span>,<span class="dv">2</span>,<span class="dv">2</span>,<span class="dv">2</span>,<span class="dv">2</span>,<span class="dv">2</span>,<span class="dv">2</span>,<span class="dv">2</span>,<span class="dv">2</span>,<span class="dv">2</span>,<span class="dv">2</span>,<span class="dv">2</span>,<span class="dv">2</span>,<span class="dv">2</span>,<span class="dv">2</span>,<span class="dv">2</span>,<span class="dv">2</span>)</span>
+<span id="cb65-364"><a href="#cb65-364" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb65-365"><a href="#cb65-365" aria-hidden="true" tabindex="-1"></a><span class="fu">median</span>(Group.A) <span class="co"># 0</span></span>
+<span id="cb65-366"><a href="#cb65-366" aria-hidden="true" tabindex="-1"></a><span class="fu">median</span>(Group.B) <span class="co"># 0</span></span>
+<span id="cb65-367"><a href="#cb65-367" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb65-368"><a href="#cb65-368" aria-hidden="true" tabindex="-1"></a><span class="fu">sd</span>(Group.A) <span class="co"># 0.5</span></span>
+<span id="cb65-369"><a href="#cb65-369" aria-hidden="true" tabindex="-1"></a><span class="fu">sd</span>(Group.B) <span class="co"># 1.0</span></span>
+<span id="cb65-370"><a href="#cb65-370" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb65-371"><a href="#cb65-371" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb65-372"><a href="#cb65-372" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb65-375"><a href="#cb65-375" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb65-376"><a href="#cb65-376" aria-hidden="true" tabindex="-1"></a><span class="fu">wilcox.test</span>(Group.A, Group.B)</span>
+<span id="cb65-377"><a href="#cb65-377" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb65-378"><a href="#cb65-378" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb65-379"><a href="#cb65-379" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb65-380"><a href="#cb65-380" aria-hidden="true" tabindex="-1"></a>The Wilcoxon rank sum test gives p = 0.014, indicating that the two groups are significantly different. This result shows that, although group A and group B have identical medians, they differ in scale (standard deviation), and differ significantly according to the Wilcoxon test. In this situation, the Wilcoxon test is said to be a test for “stochastic dominance”, which means that one group tends to have higher values than the other group. A caveat is that the calculation of the p-value for the Wilcoxon test assumes treatment groups do not differ in scale but differ only by a shift in their location.</span>
+<span id="cb65-381"><a href="#cb65-381" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb65-382"><a href="#cb65-382" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb65-383"><a href="#cb65-383" aria-hidden="true" tabindex="-1"></a><span class="fu">## When should I use t-tests and ANOVA versus rank methods?</span></span>
+<span id="cb65-384"><a href="#cb65-384" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb65-385"><a href="#cb65-385" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb65-386"><a href="#cb65-386" aria-hidden="true" tabindex="-1"></a>T-tests and the classical rank methods we looked at in this chapter may sometimes be sufficient to get good results. Their weakness is that these tests only allow for one explanatory variable. For most analyses, you are more likely to get p &lt; 0.05 if you include additional explanatory variables in an analysis of variance, or if you use the robust and rank-based methods described in the previous and next chapters that allow for more than one explanatory variable. </span>
+<span id="cb65-387"><a href="#cb65-387" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb65-388"><a href="#cb65-388" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb65-389"><a href="#cb65-389" aria-hidden="true" tabindex="-1"></a>The Wilcoxon, Kruskal-Wallis tests don't require the assumption of normal distributions, and are not affected by outliers, so why don’t we always use them instead of t-tests and one-way ANOVA? There are several considerations.</span>
+<span id="cb65-390"><a href="#cb65-390" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb65-391"><a href="#cb65-391" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb65-392"><a href="#cb65-392" aria-hidden="true" tabindex="-1"></a>If the data are exactly normally distributed, then ANOVA and t-tests have slightly more power to detect differences than do the standard versions of the rank tests. However, even with small or moderate deviations from normality, the rank tests will usually have power equal to or greater than the power of the tests that assume normality. When the data within treatment groups is substantially non-normal, the rank tests will pretty reliably have power equal to or greater than the tests that assume normality.</span>
+<span id="cb65-393"><a href="#cb65-393" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb65-394"><a href="#cb65-394" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb65-395"><a href="#cb65-395" aria-hidden="true" tabindex="-1"></a>When you have a very small sample size (5 or less per group) it may be mathematically nearly impossible to get a significant p-value using a rank test. But it may be possible to get significance using a t-test or other parametric test.</span>
+<span id="cb65-396"><a href="#cb65-396" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb65-397"><a href="#cb65-397" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb65-398"><a href="#cb65-398" aria-hidden="true" tabindex="-1"></a>One criticism of using rank methods used to be the difficulty of calculating confidence intervals. Before modern computers existed, getting confidence intervals for rank methods was harder than for methods that assume a normal distribution. But with today’s computers it is easy to get confidence intervals for rank methods.</span>
+<span id="cb65-399"><a href="#cb65-399" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb65-400"><a href="#cb65-400" aria-hidden="true" tabindex="-1"></a>Another criticism of rank methods is the difficulty in understanding the effect size, particularly among readers who are not familiar with the Hodges-Lehmann estimator. </span>
+</code></pre></div><button title="Copy to Clipboard" class="code-copy-button" data-in-quarto-modal=""><i class="bi"></i></button></div>
+</div></div></div></div></div>
+</div> <!-- /content -->
+
+
+
+
+<footer class="footer"><div class="nav-footer"><div class="nav-footer-center"><div class="toc-actions d-sm-block d-md-none"><ul><li><a href="https://github.com/Stats001/pvalues-book-2nd-edition/edit/main/chapters/ch05-rank-one-predictor.qmd" class="toc-action"><i class="bi bi-github"></i>Edit this page</a></li><li><a href="https://github.com/Stats001/pvalues-book-2nd-edition/issues/new" class="toc-action"><i class="bi empty"></i>Report an issue</a></li></ul></div></div></div></footer></body></html>

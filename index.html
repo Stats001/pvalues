@@ -478,8 +478,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   <ul>
   <li><a href="#preface" id="toc-preface" class="nav-link active" data-scroll-target="#preface">Preface</a>
   <ul class="collapse">
-  <li><a href="#a-note-on-what-this-book-is-and-isnt" id="toc-a-note-on-what-this-book-is-and-isnt" class="nav-link" data-scroll-target="#a-note-on-what-this-book-is-and-isnt">A note on what this book is and isn’t</a></li>
   <li><a href="#websites-pdf-version-of-the-book-and-r-code-from-the-book" id="toc-websites-pdf-version-of-the-book-and-r-code-from-the-book" class="nav-link" data-scroll-target="#websites-pdf-version-of-the-book-and-r-code-from-the-book">Websites, PDF version of the book, and R code from the book</a></li>
+  <li><a href="#a-note-on-what-this-book-is-and-isnt" id="toc-a-note-on-what-this-book-is-and-isnt" class="nav-link" data-scroll-target="#a-note-on-what-this-book-is-and-isnt">A note on what this book is and isn’t</a></li>
   <li><a href="#companion-book-a-gentle-introduction-to-statistics-for-biological-research" id="toc-companion-book-a-gentle-introduction-to-statistics-for-biological-research" class="nav-link" data-scroll-target="#companion-book-a-gentle-introduction-to-statistics-for-biological-research">Companion book: A Gentle Introduction to Statistics for Biological Research</a></li>
   <li><a href="#r-packages-used-in-the-book" id="toc-r-packages-used-in-the-book" class="nav-link" data-scroll-target="#r-packages-used-in-the-book">R packages used in the book</a></li>
   <li><a href="#dedication" id="toc-dedication" class="nav-link" data-scroll-target="#dedication">Dedication</a></li>
@@ -527,10 +527,6 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 
 <section id="preface" class="level1 unnumbered">
 <h1 class="unnumbered">Preface</h1>
-<section id="a-note-on-what-this-book-is-and-isnt" class="level2">
-<h2 class="anchored" data-anchor-id="a-note-on-what-this-book-is-and-isnt">A note on what this book is and isn’t</h2>
-<p>The title of this book is deliberately provocative, and I want to be direct about what it means and what it doesn’t. Every method described here is about choosing the most appropriate, most powerful statistical analysis for your data and your experimental design. These are decisions you make before you look at your results. None of them are about running analysis after analysis until one happens to cross the p &lt; 0.05 line, then reporting only that one. That practice has a name: data dredging, or “p-hacking.” It produces false positives, wastes other scientists’ time trying to replicate effects that were never real, and is a problem I take seriously enough to devote two full chapters to later in this book (see “The wrong way and the right way to get p &lt; 0.05” and “Is p &lt; 0.05 the right goal?”).</p>
-</section>
 <section id="websites-pdf-version-of-the-book-and-r-code-from-the-book" class="level2">
 <h2 class="anchored" data-anchor-id="websites-pdf-version-of-the-book-and-r-code-from-the-book">Websites, PDF version of the book, and R code from the book</h2>
 <p>The book is available at these two websites.</p>
@@ -543,6 +539,10 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <p>On the website, click here for the R code in the book in an R script file that you can download:</p>
 <p><a href="downloads/P_Values_Book_R_Code.R">Download the R code from the book</a></p>
 <p>The book will also be available through Amazon Kindle, in Kindle Unlimited.</p>
+</section>
+<section id="a-note-on-what-this-book-is-and-isnt" class="level2">
+<h2 class="anchored" data-anchor-id="a-note-on-what-this-book-is-and-isnt">A note on what this book is and isn’t</h2>
+<p>The title of this book is deliberately provocative, and I want to be direct about what it means and what it doesn’t. Every method described here is about choosing the most appropriate, most powerful statistical analysis for your data and your experimental design. These are decisions you make before you look at your results. None of them are about running analysis after analysis until one happens to cross the p &lt; 0.05 line, then reporting only that one. That practice has a name: data dredging, or “p-hacking.” It produces false positives, wastes other scientists’ time trying to replicate effects that were never real, and is a problem I take seriously enough to devote two full chapters to later in this book (see “The wrong way and the right way to get p &lt; 0.05” and “Is p &lt; 0.05 the right goal?”).</p>
 </section>
 <section id="companion-book-a-gentle-introduction-to-statistics-for-biological-research" class="level2">
 <h2 class="anchored" data-anchor-id="companion-book-a-gentle-introduction-to-statistics-for-biological-research">Companion book: A Gentle Introduction to Statistics for Biological Research</h2>
@@ -1055,34 +1055,34 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </nav><div class="modal fade" id="quarto-embedded-source-code-modal" tabindex="-1" aria-labelledby="quarto-embedded-source-code-modal-label" aria-hidden="true"><div class="modal-dialog modal-dialog-scrollable"><div class="modal-content"><div class="modal-header"><h5 class="modal-title" id="quarto-embedded-source-code-modal-label">Source Code</h5><button class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body"><div class="">
 <div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb1" data-shortcodes="false"><pre class="sourceCode markdown code-with-copy"><code class="sourceCode markdown"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu"># Preface {.unnumbered}</span></span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="fu">## A note on what this book is and isn't</span></span>
-<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>The title of this book is deliberately provocative, and I want to be direct about what it means and what it doesn't. Every method described here is about choosing the most appropriate, most powerful statistical analysis for your data and your experimental design. These are decisions you make before you look at your results. None of them are about running analysis after analysis until one happens to cross the p &lt; 0.05 line, then reporting only that one. That practice has a name: data dredging, or “p-hacking.” It produces false positives, wastes other scientists’ time trying to replicate effects that were never real, and is a problem I take seriously enough to devote two full chapters to later in this book (see “The wrong way and the right way to get p &lt; 0.05” and “Is p &lt; 0.05 the right goal?”).</span>
-<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="fu">## Websites, PDF version of the book, and R code from the book</span></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>The book is available at these two websites.</span>
 <span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a><span class="fu">## Websites, PDF version of the book, and R code from the book</span></span>
-<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>The book is available at these two websites.</span>
-<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a><span class="co">[</span><span class="ot">https://mwalkerstatistics.com</span><span class="co">](https://mwalkerstatistics.com)</span> </span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>This website has a free PDF version of the book. It also has all the R code in the book in an R script file that you can download.</span>
 <span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a><span class="co">[</span><span class="ot">https://mwalkerstatistics.com</span><span class="co">](https://mwalkerstatistics.com)</span> </span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a><span class="co">[</span><span class="ot">https://stats001.github.io/pvalues/</span><span class="co">](https://stats001.github.io/pvalues/)</span></span>
 <span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a>This website has a free PDF version of the book. It also has all the R code in the book in an R script file that you can download.</span>
+<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a>This website is the github repository for the book. </span>
 <span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a><span class="co">[</span><span class="ot">https://stats001.github.io/pvalues/</span><span class="co">](https://stats001.github.io/pvalues/)</span></span>
+<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a>On the website, click here for the free PDF version of the book: </span>
 <span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a>This website is the github repository for the book. </span>
+<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a><span class="co">[</span><span class="ot">Download the PDF version of the book</span><span class="co">](downloads/How-to-Get-P-Values-Less-Than-0.05-in-Biological-Research.pdf)</span></span>
 <span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-21"><a href="#cb1-21" aria-hidden="true" tabindex="-1"></a>On the website, click here for the free PDF version of the book: </span>
+<span id="cb1-21"><a href="#cb1-21" aria-hidden="true" tabindex="-1"></a>On the website, click here for the R code in the book in an R script file that you can download:</span>
 <span id="cb1-22"><a href="#cb1-22" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-23"><a href="#cb1-23" aria-hidden="true" tabindex="-1"></a><span class="co">[</span><span class="ot">Download the PDF version of the book</span><span class="co">](downloads/How-to-Get-P-Values-Less-Than-0.05-in-Biological-Research.pdf)</span></span>
+<span id="cb1-23"><a href="#cb1-23" aria-hidden="true" tabindex="-1"></a><span class="co">[</span><span class="ot">Download the R code from the book</span><span class="co">](downloads/P_Values_Book_R_Code.R)</span></span>
 <span id="cb1-24"><a href="#cb1-24" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-25"><a href="#cb1-25" aria-hidden="true" tabindex="-1"></a>On the website, click here for the R code in the book in an R script file that you can download:</span>
+<span id="cb1-25"><a href="#cb1-25" aria-hidden="true" tabindex="-1"></a>The book will also be available through Amazon Kindle, in Kindle Unlimited.</span>
 <span id="cb1-26"><a href="#cb1-26" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-27"><a href="#cb1-27" aria-hidden="true" tabindex="-1"></a><span class="co">[</span><span class="ot">Download the R code from the book</span><span class="co">](downloads/P_Values_Book_R_Code.R)</span></span>
-<span id="cb1-28"><a href="#cb1-28" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-27"><a href="#cb1-27" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-28"><a href="#cb1-28" aria-hidden="true" tabindex="-1"></a><span class="fu">## A note on what this book is and isn't</span></span>
 <span id="cb1-29"><a href="#cb1-29" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-30"><a href="#cb1-30" aria-hidden="true" tabindex="-1"></a>The book will also be available through Amazon Kindle, in Kindle Unlimited.</span>
+<span id="cb1-30"><a href="#cb1-30" aria-hidden="true" tabindex="-1"></a>The title of this book is deliberately provocative, and I want to be direct about what it means and what it doesn't. Every method described here is about choosing the most appropriate, most powerful statistical analysis for your data and your experimental design. These are decisions you make before you look at your results. None of them are about running analysis after analysis until one happens to cross the p &lt; 0.05 line, then reporting only that one. That practice has a name: data dredging, or “p-hacking.” It produces false positives, wastes other scientists’ time trying to replicate effects that were never real, and is a problem I take seriously enough to devote two full chapters to later in this book (see “The wrong way and the right way to get p &lt; 0.05” and “Is p &lt; 0.05 the right goal?”).</span>
 <span id="cb1-31"><a href="#cb1-31" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb1-32"><a href="#cb1-32" aria-hidden="true" tabindex="-1"></a><span class="fu">## Companion book: A Gentle Introduction to Statistics for Biological Research</span></span>
 <span id="cb1-33"><a href="#cb1-33" aria-hidden="true" tabindex="-1"></a></span>

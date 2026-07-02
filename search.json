@@ -20,11 +20,21 @@
     ]
   },
   {
-    "objectID": "index.html#website-and-companion-book",
-    "href": "index.html#website-and-companion-book",
+    "objectID": "index.html#websites",
+    "href": "index.html#websites",
     "title": "How to Get P-Values Less Than 0.05 in Biological Research",
-    "section": "Website and companion book",
-    "text": "Website and companion book\nThe website for this book is mwalkerstatistics.com. The website has a PDF version of this book, and a PDF file for the companion book, A Gentle Introduction to Statistics for Biological Research. Both are free.\nR code for both books is on the website.\nIn A Gentle Introduction to Statistics for Biological Research, I introduce and explain the methods that I recommend in How to Get P-Values Less Than 0.05 in Biological Research.\nIf you have no experience with statistics, I suggest that you start with the companion book. If you have some exposure to statistics, including standard deviation and t-tests, you can begin reading How to Get P-Values Less Than 0.05 …, and refer to A Gentle Introduction … when you need or would like more explanation of a particular concept or method.",
+    "section": "Websites",
+    "text": "Websites\nThe book is available at two websites.\nhttps://mwalkerstatistics.com\nThis website has a free PDF version of the book. It also has all the R code in the book in an R script file that you can download.\nhttps://stats001.github.io/pvalues/\nThis website is the github repository for the book. It has an HTML version of the book.\nThe book will also be available through Amazon Kindle, in Kindle Unlimited.",
+    "crumbs": [
+      "Preface"
+    ]
+  },
+  {
+    "objectID": "index.html#companion-book-a-gentle-introduction-to-statistics-for-biological-research",
+    "href": "index.html#companion-book-a-gentle-introduction-to-statistics-for-biological-research",
+    "title": "How to Get P-Values Less Than 0.05 in Biological Research",
+    "section": "Companion book: A Gentle Introduction to Statistics for Biological Research",
+    "text": "Companion book: A Gentle Introduction to Statistics for Biological Research\nIn A Gentle Introduction to Statistics for Biological Research, I introduce and explain the methods that I recommend in How to Get P-Values Less Than 0.05 in Biological Research.\nThe website mwalkerstatistics.com has a free PDF version of the companion book.\nIf you have no experience with statistics, I suggest that you start with the companion book. If you have some exposure to statistics, including standard deviation and t-tests, you can begin reading How to Get P-Values Less Than 0.05 …, and refer to A Gentle Introduction … when you need or would like more explanation of a particular concept or method.",
     "crumbs": [
       "Preface"
     ]

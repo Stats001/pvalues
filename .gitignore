@@ -1,0 +1,9 @@
+/.quarto/
+/_book/
+/_freeze/
+*.Rproj.user
+.Rhistory
+.RData
+.Ruserdata
+
+**/*.quarto_ipynb

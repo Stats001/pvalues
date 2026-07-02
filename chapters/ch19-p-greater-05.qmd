@@ -1,0 +1,40 @@
+# What if you still get p > 0.05?
+
+What do you do if you’ve tried all these methods and still get p > 0.05? There are several possibilities to consider.
+
+## A possibly false negative result
+
+Here are a few potential causes of a false negative result and action you might take. 
+
+
+**Random variation due to sampling**
+
+In the chapter, “Increase sample size last. Reduce unexplained variability first”, there are simulations that show how much a p-value can vary just by taking another random sample from the same population. We saw that, even with just 4 samples, the p-values ranged from 0.028 to 0.25. P-values go up or down by an order of magnitude just as a result of taking another sample. This is one reason why it is so important to do a power and sample size calculation, to give yourself a good chance of getting p < 0.05. 
+
+
+**Observations that appear to be wrong or inconsistent: what is the cause?**
+
+A few observations that appear to be wrong or inconsistent can give rise to non-significant p-values. In work with my clients, I have found that such anomalous observations can be caused by an operator who is new and not sufficiently trained, by specimens that were shipped at temperatures that caused the sample to degrade, by particular sites that don’t collect, store, and process specimens correctly, by particular instruments that have not been calibrated, by reagent lots that have expired or gone bad, and similar problems related to the process but not related to the treatment. If you keep a record of such information for each specimen you run, you can see if any such process variables are correlated with the anomalous observations. Specifically, you can regress your response (y) variable against each of these process variables to see if any of them consistently correlate with the anomalous observations. 
+
+A variation on this method is to create a new variable in which you classify each observation as Anomalous yes or no. Then use this “Anomalous yes or no” variable as the response variable in a logistic regression, where the explanatory variables in the logistic regression are treatment and each of the process variables for which you have information. In the regression models you usually want to either (i) include treatment group as an explanatory variable, or (ii) do the analyses separately for each treatment group. I suggest including treatment group as an explanatory variable, as this avoids reducing the number of observations in the analysis.
+
+**Non-inferiority rather than superiority**
+
+Particularly in medical studies, if a new intervention has fewer safety problems than an existing intervention, it may be sufficient to show that the new intervention is not worse than the existing intervention with respect to the efficacy. In a biological setting, it may be scientifically interesting, for example, to show that the effect of one genetic mutation is not less than the effect of another genetic mutation. In these situations, an alternative to a formal statistical test for difference is a formal statistical test for non-inferiority. The sample size required for non-inferiority studies depends on the allowable margin – how much worse can the new treatment be and still be considered non-inferior? Unfortunately, unless the non-inferiority margin is large, the sample size required to show non-inferiority can be quite large. 
+
+
+**The treatment effect is in the extremes rather than in the means: quantile regression.**
+
+In some cases, the effect of a treatment is not to create a difference between the means or medians of two groups, but rather to create a difference in the more extreme values. For example, suppose an intervention is designed to prevent pre-term births. As pre-term births are generally less than 10% of births, the intervention may have little effect on the mean or median gestational age at birth. But an intervention might have a large effect on the shortest 5% of gestational age at birth (premature babies). In such situations, one method of analysis is to test for a difference only among the subgroup of babies who make up the shortest 5% of gestational ages at birth. This can be done by explicitly separating out the subjects in the shortest 5% in each treatment group. An alternative method is quantile regression, which tests for differences at different quantiles (percentiles) of the response variable, where the quantiles could be the 5th percentile, the 50th percentile (median) or another percentile of interest. See the R package quantreg for examples and code.
+
+
+## A true negative result
+
+It may be that the treatment really doesn’t have the effect size that you hoped for or doesn’t have any effect at all. If that is true, it can still be helpful to other researchers if you include this information in your final report:
+
+- Show that the sample size and power were sufficient to detect a scientifically or medically interesting effect size. Surprisingly, many published “negative” results actually have insufficient sample size and power. For example, studies sometimes include only those patients available at the particular clinic where the physician/investigator works and are underpowered right from the start.
+- Describe the covariates that you included in the model, along with their effect sizes, p-values, and standard deviation within treatment groups from your analyses. Reporting the standard deviation within treatment groups can be quite helpful to other researchers working in your field when they need to do power and sample size calculations.
+- Report the adjusted R-squared, which is the proportion of variance in the response that is explained by the model. The adjusted R-squared is between 0 and 1. If it is much below 1, it indicates that there is a lot of unexplained variability, and that future work would likely benefit from trying to identify and reduce those sources of variability.
+- Describe alternative analyses that you performed, such as rank-based analyses, analyses excluding highly correlated covariates, tests for interactions, or other analyses that demonstrate a thorough examination of the data.
+
+After that, it may be time to move on to another research question.

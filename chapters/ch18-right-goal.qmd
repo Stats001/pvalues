@@ -1,0 +1,33 @@
+# Is P < 0.05 the right goal?
+
+There has been considerable discussion and debate regarding the use and misuse of p-values and the p < 0.05 criterion. While p-values will likely continue to be requirements for most scientific publications and regulatory reviews, it is worth considering when p-values are or are not appropriate, what can be done to improve their use, and what alternatives and additional methods could be used to improve the quality and reproducibility of scientific research.
+
+The American Statistical Association (ASA) published a statement on p-values that outlined many of the issues [@wasserstein2016]:
+
+Ronald L. Wasserstein & Nicole A. Lazar (2016) The ASA Statement on p-Values: Context, Process, and Purpose, The American Statistician, 70:2, 129-133, DOI:
+10.1080/00031305.2016.1154108
+
+https://doi.org/10.1080/00031305.2016.1154108
+
+https://www.amstat.org/asa/files/pdfs/p-valuestatement.pdf and 
+
+https://amstat.tandfonline.com/doi/full/10.1080/00031305.2016.1154108#.Vt2XIOaE2MN.
+
+
+The statement describes some of the background:
+
+“The ASA Board was also stimulated by highly visible discussions over the last few years. For example, ScienceNews (Siegfried 2010) wrote: “It’s science’s dirtiest secret: The ‘scientific method’ of testing hypotheses by statistical analysis stands on a flimsy foundation.” A November 2013, article in Phys.org Science News Wire (2013) cited “numerous deep flaws” in null hypothesis significance testing. A ScienceNews article (Siegfried 2014) on February 7, 2014, said “statistical techniques for testing hypotheses …have more flaws than Facebook’s privacy policies.” A week later, statistician and “Simply Statistics” blogger Jeff Leek responded. “The problem is not that people use P-values poorly,” Leek wrote, “it is that the vast majority of data analysis is not performed by people properly trained to perform data analysis” (Leek 2014).”
+
+
+The ASA statement proposed the following six principles.
+
+- P-values can indicate how incompatible the data are with a specified statistical model.
+- P-values do not measure the probability that the studied hypothesis is true, or the probability that the data were produced by random chance alone.
+- Scientific conclusions and business or policy decisions should not be based only on whether a p-value passes a specific threshold.
+- Proper inference requires full reporting and transparency.
+- A p-value, or statistical significance, does not measure the size of an effect or the importance of a result.
+- By itself, a p-value does not provide a good measure of evidence regarding a model or hypothesis.
+
+The statement includes explanations and discussion of these principles. In addition, the supplementary material includes 21 letters from statisticians and researchers commenting on the strengths, weaknesses, and inadequacies of the ASA statement and the principles.
+
+Whether or not one believes that p-values or p < 0.05 are appropriate tools, it remains desirable to reduce unexplained variability, reduce sample size, increase power, and deal with multiple hypothesis testing, among other issues.

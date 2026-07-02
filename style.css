@@ -1,0 +1,69 @@
+
+/* Allow the main book body to expand to the full screen width */
+body, html, .book-body, .page-inner {
+  max-width: 100% !important;
+  width: 100% !important;
+  padding-left: 0 !important;
+  padding-right: 0 !important;
+  margin: 0 auto !important;
+}
+
+/* Ensure code blocks and text paragraphs fill the expanded space */
+p, div, pre, .sourceCode {
+  max-width: 100% !important;
+}
+
+/* Fix the big gaps in R code in epub */
+/* Target the raw preformatted containers */
+pre, code, .sourceCode, .sourceCode span {
+  line-height: 1.2 !important; /* Locks lines close together */
+  margin-top: 0 !important;    /* Removes top gap leaks */
+  margin-bottom: 0 !important; /* Removes bottom gap leaks */
+  padding-top: 0 !important;
+  padding-bottom: 0 !important;
+}
+
+/* Ensure the outer block wrapper preserves correct default spacing */
+div.sourceCode {
+  margin: 1em 0 !important;    /* Adds space only BEFORE and AFTER the whole block */
+}
+
+/* ── LINE WRAPPING FIXES ─────────────────────────────────────────────────── */
+
+/* Wrap long lines in R SOURCE code blocks.
+   Overrides Pandoc's injected "white-space: pre" which causes overflow. */
+pre > code.sourceCode,
+pre > code.sourceCode > span {
+  white-space: pre-wrap !important;
+  word-break: break-all !important;
+}
+
+/* Wrap long lines in R OUTPUT blocks (summary(), print(), cat(), etc.)
+   These live in plain <pre> tags, not .sourceCode, so need separate rules. */
+pre:not(.sourceCode),
+.cell-output pre,
+.cell-output-stdout pre,
+.cell-output-stderr pre {
+  white-space: pre-wrap !important;
+  word-break: break-all !important;
+  overflow-x: hidden !important;
+}
+
+/* Slightly smaller font for code so more fits per line on narrow screens */
+pre, code {
+  font-size: 0.8em !important;
+}
+
+/* ─────────────────────────────────────────────────────────────────────────── */
+
+/* For epub book to make R code and R output grey */
+/* Style for source code blocks */
+.sourceCode {
+  background-color: rgb(245,245,245);
+  padding: 0.5em;
+}
+/* Style for code output blocks */
+pre:not(.sourceCode) {
+  background-color: rgb(228,228,228);
+  padding: 0.5em;
+}

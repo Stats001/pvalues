@@ -1,0 +1,241 @@
+# Calculate power and sample size if you want p < 0.05
+
+Before you begin an experiment, would you like to know your chances of getting p < 0.05?
+
+
+Would you like to know, before you began, if you only have a 10% chance of getting p < 0.05? Would you think about changing the experiment? What if you had only a 50% chance? 
+
+
+The probability that you will get p < 0.05, assuming the treatment works, is the power of your experiment. Typically, anything less than 70% is considered low power. Low power makes it hard to get p < 0.05. Institutional Review Boards and funding agencies usually want to see power of 80% or higher before they approve or fund a project.
+
+
+In this chapter, we'll look at what determines power and sample size. We’ll see easy ways to calculate power using software. If you know how to calculate the power and sample size for your proposed experiment, you can design better experiments. You can increase the probability that you will get p < 0.05. 
+
+
+It can be difficult to get the necessary information to calculate power for an analysis that includes more than one explanatory variable. For that reason, we often do the power calculation for a t-test, with the expectation that we will get a conservative estimate of the required sample size and power. But the actual study will use more powerful methods than t-tests.
+
+
+## What determines your power and sample size?
+
+
+Let’s look at a few scenarios to get an intuitive idea of what affects power and sample size.
+
+
+
+### Scenario 1: A good situation
+ 
+Suppose we have Group A with mean 8 and Group B with mean 12, and the standard deviation within group is sd = 2. The difference between the means is delta = 12 – 8 = 4. 
+
+Because the difference between the means delta = 4 is large compared to the standard deviation within group of sd = 2, this scenario will give us good power and/or will require a relatively smaller sample size. 
+
+
+Here is R code to calculate sample size for this scenario, using the function power.t.test. We’ll see more on how to calculate power and sample size shortly.
+
+
+Assumptions:
+
+- delta = difference between group means (effect size) = 4
+- sd = standard deviation within group = 2
+- sig.level = desired alpha = 0.05
+- power = 0.8
+
+```{r}
+power.t.test(delta = 4, sd = 2, sig.level = 0.05, power = 0.8)
+```
+
+
+In the output from power.t.test, the words “Two-sample” indicate the two groups. So, the output indicates that, for the given assumptions, the required sample size is n = 5.09 per group. Rounding up to 6 per group, we need a total sample size of 2*6=12. 
+
+
+
+### Scenario 2: An OK situation
+
+In this scenario, the standard deviation within each group is still small (sd=2), but the means of the two groups are not so far apart (delta = 10 – 8 = 2). Compared to scenario 1, we will need a bigger sample size, or, for a given sample size, we will have less power to show a significant difference between the two groups.
+
+Here is the R code to calculate sample size for this scenario.
+
+Assumptions:
+
+- delta = difference between group means (effect size) = 2
+- sd = standard deviation within group = 2
+- sig.level = desired alpha = 0.05
+- power = 0.8
+
+```{r}
+power.t.test(delta = 2, sd = 2, sig.level = 0.05, power = 0.8)
+```
+
+
+The output from power.t.test indicates that, for the given assumptions, the required sample size is n = 16.7 per group. Rounding up to 17 per group, we need a total sample size of 2*17=34.
+
+
+Because the difference between the means is smaller, the sample size is larger than in scenario 1.
+
+
+
+### Scenario 3: An unfavorable situation
+
+For this scenario, the difference between the group means is delta = 10 – 8 = 2. The standard deviation within each group is sd = 3, which is 50% larger than the standard deviation for scenarios 1 and 2.
+
+This is an unfavorable situation: a small difference between the means (small effect size) and large standard deviation within each group. We expect that this scenario will require a larger sample size to detect the difference between the groups with p < 0.05. 
+
+Here is the R code to calculate sample size for this scenario.
+
+Assumptions:
+
+- delta = difference between group means (effect size) = 2
+- sd = standard deviation within group = 3
+- sig.level = desired alpha = 0.05
+- power = 0.8
+
+```{r}
+power.t.test(delta = 2, sd = 3, sig.level = 0.05, power = 0.8)
+```
+
+
+The output from power.t.test indicates that, for the given assumptions, the required sample size is n = 36.3 per group. Rounding up to 37 per group, we need a total sample size of 2*37=74.
+
+
+Scenario 4: A wasteful, overpowered experiment with too large a sample size.
+
+
+Is it ever possible to have too large a sample size? Well, if you can run two experiments and get p < 0.05 using the same resources that your competitor uses to run one experiment, who is going to get results faster? Who will publish first? Who will get to market first?
+
+
+Usually, we want the power for our experiments to be 80% or higher. Power of 90% or 95% is reasonable. But much more power than that can be wasted.
+
+
+Suppose that colleagues in your lab tell you that, traditionally, they use a sample size of 25 specimens per group. Nobody knows why: it is just tradition. You examine results from previous experiments in your lab and see that the typical standard deviation within group is 4. The effect size you want to detect is 6, with alpha = 0.05. We can use the power.t.test function to calculate the power for n = 25 subjects per group:
+
+
+Assumptions:
+
+- delta = difference between group means (effect size) = 6
+- sd = standard deviation within group = 4
+- sig.level = desired alpha = 0.05
+- sample per group = n = 25
+
+```{r}
+power.t.test(delta = 6, sd = 4, sig.level = 0.05, n=25)
+```
+
+
+The output from power.t.test indicates that, for the given assumptions, a sample size of 25 per group gives power = 0.99939. Now, perhaps you do want that much power to be certain of getting a confirmatory result, in which case n=25 may be appropriate. However, you could have gotten 95% power with only 13 per group, instead of 25 per group:
+
+
+```{r}
+power.t.test(delta = 6, sd = 4, sig.level = 0.05, power = 0.95)
+```
+
+
+So, you could run two experiments with 13 per group and have 95% power to get p < 0.05 for each experiment.  Or you can run a single experiment with 25 per group and have power greater than 0.99 to get p < 0.05. It’s worth thinking about, and worth calculating the sample size and power you really need to be successful.
+
+
+These scenarios illustrate that power for a t-test depends on 4 things:
+
+- Effect size: what is the difference between the means of the two treatment groups?
+- Standard deviation: what is the standard deviation within each treatment group?
+- Sample size: how many subjects will be in each group?
+- Alpha: Do we want a p-value less than alpha = 0.05 or 0.01?
+
+Notice in scenario 3 that the within-group standard deviation has a particularly large effect on power. This is the reason for the chapter “Increase sample size last. Reduce unexplained variability first”. It is also the reason why you need to calculate power and sample size before you begin your experiment. If you don’t, you will likely either be underpowered and not get p < 0.05, or your experiment will be overpowered and waste resources.
+
+
+## Software for power and sample size
+
+There are several quite good commercial software packages for power and sample size calculations. 
+
+The review by Serdar et al, “Sample size, power and effect size revisited: simplified and practical approaches in pre-clinical, clinical and laboratory studies” is very helpful [@serdar2021].  Table 2 in the paper has notes on software performance, user friendliness, and if the software is free.
+
+Of the commercial power and sample size software packages, I use NCSS PASS the most. The NCSS PASS documentation (https://www.ncss.com/software/pass/pass-documentation/) is particularly good at explaining the concepts and giving very clear, easy to understand examples. Even if you don’t buy the software, it is worthwhile looking at their documentation.
+
+
+As shown above, R has a few basic functions to calculate power and sample size. These functions are power.t.test, power.anova.test and power.prop.test. The R function power.anova.test calculates power or sample size for one-way ANOVA. See the companion book for examples.
+
+The free R package TrialSize accompanies the textbook "Sample Size Calculation in Clinical Research" by Shein-Chung Chow et al [@chow2017]. The textbook gives very clear explanations of the concepts.
+
+
+## Examples of power and sample size calculations using the base R functions
+
+
+Here are a few examples using the base R functions for power and sample size calculations.
+
+
+
+Sample size for a two-sample t-test.
+
+- difference in means, delta = 0.5   
+- standard deviation, sd = 0.5        
+- alpha, sig.level = 0.01    
+- desired power, power = 0.9      
+
+```{r}
+power.t.test(delta = 0.5, sd = 0.5, sig.level = 0.01, power = 0.9)
+```
+
+
+Estimate power for a two-sample t-test.
+
+- difference in means, delta = 0.5   
+- standard deviation, sd = 0.5        
+- alpha, sig.level = 0.01    
+- sample size, n = 31      
+
+```{r}
+power.t.test(delta = 0.5, sd = 0.5, sig.level = 0.01, n = 31)
+```
+
+
+
+## Estimate sample size using data from a pilot study
+
+
+Suppose you plan an experiment, and want to estimate sample size. You don't have information on mean effect size or standard deviation. You perform a pilot study to collect information on the mean and standard deviation of two groups, and get the following results.
+
+
+```{r}
+
+group1=c(1.1, 2.3, 4.8, 5.4, 7.9)
+group2=c(3.3, 4.2, 4.7, 7.6, 9.2)
+
+mean(group2)-mean(group1)
+sd(group1)
+sd(group2)
+```
+
+
+The estimated effect size is the difference between the means, which is 1.5. The standard deviations of the two groups are 2.49 and 2.68. It is usually better to use the larger estimate of the standard deviation when estimating sample size, so we'll use sd=2.7. We'll use power=0.8.
+
+
+```{r}
+power.t.test(delta = 1.5, sd = 2.7, sig.level = 0.05, power=0.8)
+```
+
+
+
+The power calculation indicates we need 52 subjects per group, for a total of 104 subjects. The main reason for the large sample size is that the standard deviation (sd = 2.7) is large compared to the difference between the means (delta = 1.5). If we want to reduce the sample size, we need to find a way to reduce the within group standard deviation, which is unexplained variance. You can include additional explanatory variables in your analysis to reduce the unexplained variance. We'll see more methods to reduce this unexplained variance in later chapters.
+
+
+## Assay variability reduces power, increases sample size, and gives worse p-values
+
+
+Suppose you plan an experiment using a 96 well plate. You run identical specimens in all 96 wells. You find that the standard deviation of the identical specimens in the 96 wells is 10 units. The effect size you hope to detect is 5 units. What sample size will you need?
+
+
+```{r}
+power.t.test(delta=5, sd=10, sig.level = 0.05, power=0.8)
+```
+
+
+You think that by fixing the assay, you may be able to  reduce the standard deviation of identical specimens in the 96 wells to 5 units. How does this affect sample size?
+
+
+```{r}
+power.t.test(delta=5, sd=5, sig.level = 0.05, power=0.8)
+```
+
+
+What do you prefer, n = 64 per group or n = 17 per group? It is pretty clear that reducing the unexplained variability in an assay can give you dramatic improvements in increased power, decreased sample size, and getting p < 0.05. I often see such variability due to row effects, column effects, or edge effects (such as evaporation from poor sealing).
+
+
+In this illustration we only examined one source of variability: the standard deviation of the identical specimens. For actual experiments the sample size calculation would need to account for additional sources of variability, such as the variability of subjects within treatment groups.

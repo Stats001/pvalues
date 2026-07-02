@@ -1,0 +1,247 @@
+# Look (out) for interactions: when subgroups respond differently to treatment
+
+
+In your experiments, you likely have seen subgroups that appear to respond differently to the same treatment. In medicine, the effect of a treatment on a patient can depend on the patient’s age, sex, genetics, disease history, disease severity, and many other factors. When the effect of a treatment depends on the level of another variable (such as genetics, age, sex, disease severity) there is an interaction. Undetected interactions can make p-values worse or even non-significant, as we’ll demonstrate.
+
+
+We sometimes encounter a group of outliers in a data set, such as we saw in the chapter on robust analysis. A group of similar outliers can be a clue that there is an interaction: one population (subgroup) is responding differently from the majority of observations that belong to another population (subgroup). 
+
+
+One reason you want to look for interactions is that identifying them can contribute substantially to better understanding of the underlying biology or disease. A reason to look out for them is that, if undetected, they can hurt your p-values.
+
+
+The chapter on interactions in the companion book, “A Gentle Introduction to Statistics for Biological Research” provides details of methods to analyze interactions. In this chapter you will see some examples of how interactions can affect p-values and methods you can use to detect and analyze interactions to get better p-values.
+
+
+## Example: how interactions can make p-values worse
+
+
+A post-doc researcher, whom we’ll call Patricia, was interested in the effects of caloric restriction (CR) on the performance of mice on a learning test. She performed an experiment and collected the following data.
+
+
+
+```{r}
+CR.data = data.frame(CR = c("Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "No", "No", "No", "No", "No", "No", "No", "No"),
+Learning.score = c(65, 68, 72, 60, 69, 71, 62, 70, 64, 67, 62, 61, 68, 63, 64, 65))
+
+CR.data
+```
+
+
+
+
+The graph of learning score versus CR did not look too promising.
+
+```{r}
+library(ggplot2)
+mouse.CR.graph = ggplot(CR.data, aes(y=Learning.score, x=CR)) +
+  geom_point() + ggtitle("Mouse CR data") +
+  scale_y_continuous(breaks=0:80*10, limits=c(50, 80))
+plot(mouse.CR.graph)
+```
+
+
+
+The t-test, implemented using either the t.test function or the lm function, was not significant (p = 0.12).
+
+
+```{r}
+with(CR.data, t.test(Learning.score ~ CR, var.equal = TRUE))
+```
+
+
+```{r}
+# t-test using lm
+mouse.lm.CR=with(CR.data, lm(Learning.score ~ CR))
+summary(mouse.lm.CR)
+```
+
+
+Patricia thought that the age of the mice might affect learning scores. She went back and collected the age information. There were 10 old mice and 6 young mice.
+
+```{r}
+CR.Age.data = data.frame(CR = c("Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes", "Yes","No", "No", "No", "No", "No", "No", "No", "No"),
+Learning.score = c(65, 68, 72, 60, 69, 71, 62, 70, 64, 67, 62, 61, 68, 63, 64, 65),
+Age = c("Young", "Old", "Old", "Young", "Old", "Old", "Young", "Old", "Young", "Young", "Old", "Young", "Old", "Old", "Old", "Old"))
+
+CR.Age.data
+```
+
+
+Patricia ran a 2-way analysis of variance, using the lm function, and included both CR and age as the explanatory variables.
+
+```{r}
+mouse.lm.CR.Age=with(CR.Age.data, lm(Learning.score ~ CR + Age))
+summary(mouse.lm.CR.Age)
+```
+
+Unfortunately, even controlling for age, the p-value for CR was not significant (p = 0.0712), though it did improve compared to the t-test (p = 0.124).
+
+Patricia decided to take a closer look at the graph of the learning scores, labeling them with both CR and age.
+
+
+```{r}
+mouse.interaction.graph = ggplot(CR.Age.data,
+                                 aes(y=Learning.score, x=CR, group=Age, col=Age, shape=Age)) +
+  geom_point() +
+  ggtitle("Interaction of CR with Age \nin their effect on Learning score") +
+  scale_y_continuous(breaks=0:80*10, limits=c(50, 80))
+
+plot(mouse.interaction.graph)
+```
+
+
+The graph suggested that CR was having an effect in the old mice but possibly not having an effect in the young mice. 
+
+The R function interaction.plot is another helpful way to visualize the data.
+
+```{r}
+with(CR.Age.data, interaction.plot(CR, Age,  Learning.score, ylim = c(60, 75)))
+```
+
+
+The interaction plot draws two lines:
+
+- The first, dotted line, connects the mean learning scores for CR = No to CR = Yes among the old mice.
+
+- The second, solid line, connects the mean learning scores for CR = No to CR = Yes among the young mice.
+
+If there was no interaction, these two lines would be parallel (have the same slope). Instead, these lines are not parallel. They have different slopes.
+
+
+This is a classic interaction: the effect of treatment (CR) on learning scores is different in old mice compared to young mice.
+
+
+To find interactions you can examine graphs, as we have done. In addition, you use analysis of variance to do a formal hypothesis test for significant interactions. The interaction test is a test to see if the lines in the interaction plots all have the same slope. If the lines in the interaction plots have the same slope there is no interaction. The alternative is that the lines do not have the same slope. If the interaction test gives p < 0.05, we conclude that the lines have different slopes, and that there is an interaction.
+
+
+To perform the interaction test, you need to make one change in the R code. Here is the R code that we used before, without the interaction test:
+
+mouse.lm.CR.Age   = with(CR.Age.data, lm(Learning.score ~ CR + Age))
+
+Notice that there is a + sign in the formula (Learning.score ~ CR + Age).
+
+To perform the interaction test, you change the + sign in the formula to a *, like this:
+
+mouse.lm.CR.Age.interaction = with(CR.Age.data, lm(Learning.score ~ CR * Age))
+
+
+Here is the R code, now with the interaction test:
+
+
+```{r}
+mouse.lm.CR.Age.interaction = with(CR.Age.data, lm(Learning.score ~ CR * Age))
+summary(mouse.lm.CR.Age.interaction)
+```
+
+
+The p-value for the interaction test is in the last row in the coefficients. The text CRYes:AgeYoung, with a colon between the two variable names, indicates it is the interaction test. The interaction test is significant (p = 0.0092). Patricia had found that the lines had different slopes, and that there was an interaction.
+
+
+When you find an interaction, there are several possible ways to examine it more closely. See the chapter on interactions in the companion book for details. For now, we’ll create subsets of the data to examine the young and old mice separately.
+
+
+Here is the subset and graph for the young mice.
+
+```{r}
+young.mouse.data = subset(CR.Age.data, Age=="Young")
+
+young.mouse.CR.graph = ggplot(young.mouse.data, aes(y=Learning.score, x=CR)) +
+  geom_point() +
+  ggtitle("Young mouse CR data") +
+  scale_y_continuous(breaks=0:80*10, limits=c(50, 80))
+
+plot(young.mouse.CR.graph)
+```
+
+Here is the test of learning score versus CR in the young mice.
+
+
+```{r}
+young.mouse.lm      = lm(Learning.score ~ CR, data=young.mouse.data)
+summary(young.mouse.lm)
+```
+
+
+
+For the young mice, the p-value for CR is not significant (p = 0.5). This indicates that CR has no effect on learning score in young mice. We have to be cautious about this conclusion because the sample size of 3 mice per group is very small and has little power.
+
+
+Next, the subset and graph for the old mice.
+
+
+```{r}
+old.mouse.data   = subset(CR.Age.data, Age=="Old")
+old.mouse.CR.graph = ggplot(old.mouse.data, aes(y=Learning.score, x=CR)) +
+  geom_point() +
+  ggtitle("Old mouse CR data") +
+  scale_y_continuous(breaks=0:80*10, limits=c(50, 80))
+plot(old.mouse.CR.graph)
+```
+
+
+Here is the test of learning score versus CR in the old mice.
+
+
+```{r}
+old.mouse.lm      = lm(Learning.score ~ CR, data=old.mouse.data)
+summary(old.mouse.lm)
+```
+
+
+For the old mice, the p-value for CR is significant (p = 0.002). This indicates that CR has an effect on learning scores in old mice.
+
+
+## What have we seen and learned?
+
+
+Patricia’s original t-test of learning score versus CR gave a non-significant result (p = 0.12). 
+
+
+Adding a second explanatory variable, Age, improved the p-value for CR from p = 0.12 to p = 0.07, and showed that age was significant (p = 0.019).
+
+
+A careful look at a plot of learning score versus the CR, colored by age, showed that there was likely a significant interaction. The effect of CR was different in old and young mice. A hypothesis test and analysis of subgroups confirmed the significant interaction.
+
+
+If Patricia had stopped after the first t-test, she would have had a negative result. Instead, by looking (out) for possible interactions, she had a much more interesting result: CR had a significant effect on learning in old mice but did not have a significant effect in young mice.
+
+
+## Multiple hypothesis testing and interactions
+
+
+You need to be careful about the multiple hypothesis testing problem when you test for interactions.
+
+
+Suppose you are examining the effects of 10 microRNAs on a phenotype. You suspect that there may be interactions among the microRNAs in their effect on the phenotype. Even if you examine only the 2-way interactions, there are choose(10,2) = 45 tests:
+
+
+```{r}
+choose(10,2) # Gives 45.
+```
+
+
+Adding possible 3-way interactions gives you another 120 tests:
+
+
+```{r}
+choose(10,3) # Gives 120.
+```
+
+
+If you do 45 + 120 = 165 hypothesis tests you are pretty much guaranteed to get some false positive results.
+
+
+See the chapter on “The wrong way to get p < 0.05” for more about the multiple hypothesis testing problem and methods to deal with it.
+
+
+## When should you look for interactions?
+
+
+The short answer is, if you have sufficient data, it is likely a good idea to always look for interactions. If you do, and you don’t find any, it indicates that your treatment likely has a similar effect across subgroups. If you find interactions that were not previously reported, there is a good chance that you’ve found something of scientific interest, and you’ve likely gotten better p-values than you would just doing tests that ignored potential interactions.
+
+
+Ideally, when you write your experimental plan, you should pre-specify what interactions you will test for. The list should be based on your knowledge of what variables are most likely to interact. Doing a lot of post-hoc interaction tests can cause problems with multiple hypothesis testing. If you do find interactions by post-hoc testing, consider it to be a hypothesis-generating exercise that requires further experiments for confirmation.
+
+
+

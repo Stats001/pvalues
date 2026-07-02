@@ -1,0 +1,172 @@
+# Avoid correlated explanatory variables in multiple regression and ANOVA
+
+
+When the explanatory (x) variables in a regression analysis are correlated they can cause several problems, including making your p-values non-significant, and giving misleading results. If you have correlated variables in a regression model, an explanatory variable that is in fact associated with the response can get p-values much greater than 0.05.  In extreme cases, even the apparent direction of the effect (positive versus negative) can be reversed.
+
+Here are some examples of correlated explanatory variables in biology.
+
+- Age, height, and weight
+- Expression of genes in the same pathway or with related function
+- Patient responses to related questions on a questionnaire
+- Levels of cell cycle proteins in cancer specimens
+- Expression of heavy and light chains in an immunoglobulin
+
+
+```{r}
+library(tidyverse)
+```
+
+
+
+## Example: How correlated explanatory variables affect linear regression
+
+To illustrate the problems caused by correlated explanatory variables, we'll examine a response variable as a function of the drug dose, age, and weight in mice aged 3 to 8 weeks.
+
+Here is the data set.
+
+
+```{r}
+response =  c(25,22,18,16,19,18,22,17,18,15,20,23,19,26,22,24,25,21,27,24,27, 19,22,26,27,29,25,22,18,19,27,25,23,18,19,17)
+
+weight = c(9,10,12,19,20,24,7,11,12,14,17,22,9,11,12,15,18,25,9,10,13,13,17, 20,8,10,11,16,19,25,10,10,12,15,21,24)
+
+dose=c(rep(0,6), rep(1,6), rep(2,6), rep(3,6), rep(4,6), rep(5,6))
+age = rep(3:8, 6)
+
+mouse.data = data.frame(response, dose, age, weight)
+
+head(mouse.data)
+```
+
+
+Let's do some plots to examine the data.
+
+
+```{r}
+hist(mouse.data$response)
+```
+
+
+The response variable looks reasonably symmetric without large outliers.  
+
+
+```{r}
+pairs(mouse.data)
+```
+
+
+The plots don't indicate a lot of outliers or greatly non-normal distributions, so for the moment we’ll use standard analysis methods. There does appear to be a strong correlation of age with weight, as you would expect in a population of mice from age 3 to 8 weeks.
+
+
+Let's look at the correlation coefficients for each pair of variables, rounded to three decimal places.
+
+
+```{r}
+round(cor(mouse.data), 3)
+```
+
+Notice that weight and age are highly correlated (R=0.949). Correlated explanatory variables can cause a variety of problems in regression analysis, as we’ll see shortly. Dose is correlated with response, which suggests the drug is having an effect. In addition, age and weight are both negatively correlated with response, indicating that the response goes down as age or weight go up. This negative correlation might occur if the drug dose is effectively diluted in the older heavier animals.
+
+
+Now, let’s see how these correlations affect what we might conclude from some regression analyses.
+
+
+**MODEL 1: RESPONSE = DOSE + AGE + WEIGHT**
+
+
+First, we'll build a full model that includes all three variables dose + age + weight.
+
+
+```{r}
+lm.3vars= lm(response ~ dose +  age + weight, data= mouse.data)
+summary(lm.3vars)
+```
+
+
+The summary indicates that dose is not significantly associated with response (p = 0.0509). Age is not significantly associated with response (p = 0.6775), and weight is also non-significant (p = 0.6185). The Adjusted R-squared = 0.2136 indicates that the model explains about 21% of the variability in the response.
+
+Some researchers might stop at this point and conclude that dose, age and weight do not have a significant effect on the response. However, this would be an incorrect conclusion.
+
+One strategy that researchers sometimes use is to remove non-significant variables from a regression model. Let’s look at that method.
+
+
+**MODEL 2: RESPONSE = DOSE**
+
+The second model we examine, Model 2, is the linear regression of RESPONSE versus DOSE, without AGE or WEIGHT in the model.
+
+```{r}
+lm.dose = lm(response ~ dose, data= mouse.data)
+summary(lm.dose)
+```
+
+
+In Model 2, the p-value for DOSE is still not significant (p = 0.0713). However, the Adjusted R-squared = 0.0658 indicates that this model explains much less of the variance in RECOVER than Model 1 which included age and weight, and had Adjusted R-squared = 0.21, despite the fact that age and weight were not significant in Model 1.
+
+Removing both age and weight from the model leaves a large amount of unexplained variability in the response, making it harder to get a significant p-value for dose.
+
+The observation that the model without AGE and WEIGHT gives a much worse fit to the data (low R-squared = 0.0658) plus the observed high correlation between AGE and WEIGHT suggests that correlation may be causing a problem in the regression. 
+
+The estimated variance of the AGE and WEIGHT parameters are greatly inflated (Variance Inflation) because of this correlation, giving us the non-significant p-values.
+
+One way to deal with this correlation problem is to create models that include only one of the two correlated variables, which is what we do in Model 3 and Model 4.
+
+
+**MODEL 3: RESPONSE = DOSE + AGE**
+
+
+```{r}
+lm.dose.age = lm(response ~ dose + age, data = mouse.data)
+summary(lm.dose.age)
+```
+
+
+In this model, including AGE but excluding WEIGHT, the p-value for AGE is significant (p = 0.00685).  The p-value for dose is also now significant (p = 0.048). The model adjusted R-squared of 0.23 indicates that this model explains 23% of the variance in the RESPONSE, similar to that for the full model (Model 1) that also included weight.
+
+
+**MODEL 4: RESPONSE = DOSE + WEIGHT**
+
+
+```{r}
+lm.dose.weight = lm(response ~ dose + weight, data= mouse.data)
+summary(lm.dose.weight)
+```
+
+
+In this model, including WEIGHT but excluding AGE, the p-value for WEIGHT is significant (p=<0.00656).  The p-value for dose is also now significant (p = 0.0479).  The model adjusted R-squared of around 0.23 is similar to that for the full model (Model 1). 
+
+
+## What have we learned, and what should we do in future experiments?
+
+
+These four models illustrate that, when we have correlated variables, they can lead to non-significant p-values for the correlated parameters and give us quite misleading conclusions about the effect of the variables on the response.
+
+By dealing appropriately with the correlated variables, we end up with a significant p-value for the treatment.
+
+This type of analysis should be pre-specified in the experiment protocol and the statistical analysis plan in your laboratory notebook. It is not a good idea to wait until after the results come back non-significant and then start looking for correlated variables. A better practice is to look at the correlation matrix before performing any regression analyses. If, instead, you wait till after the analyses are done, and then start looking at different combinations of variables to avoid correlation, you create problems with multiple hypothesis testing. See the chapter on “The wrong way to get p < 0.05”.
+
+R has some additional tools that help detect collinearity problems; these tools include the Tolerance, Variance Inflation Factor (VIF) and Collinearity Diagnostics. 
+
+The regression estimates of the coefficients for correlated variables may change quite a lot when there are even small changes in observations included in the data set. A further problem is that the estimated variance of the parameters may be greatly inflated (Variance Inflation) which in turn can lead to non-significant p-values for the correlated parameters.
+
+
+## How to deal with correlated variables
+
+The most common ways to deal with correlated variables are:
+
+- Remove one or more of the correlated variables from the model. Stepwise variable selection may be useful.
+
+- Combine the correlated variables (for example, standardize the variables and then take the average).
+
+- Use an alternative regression methodology, such as lasso, ridge regression, principal components regression or partial least squares.
+
+As we noted above, in the model including WEIGHT but excluding AGE, the p-value for WEIGHT is significant and the model adjusted R-square is close to that for the full model. A plausible biological explanation is that a given dose is more diluted in a heavier animal. Dropping the AGE variable may be a good strategy here. Sometimes when we have correlated variables one of the variables is cheap and easy to measure, whereas the other variables may be expensive and hard to measure. Non-statistical issues may determine the choice of what to include in the model. 
+
+
+
+## Final example: the OncotypeDx breast cancer recurrence test
+
+Back around the year 2000, I was consulting for Genomic Health, developing what would become the algorithm for the OncotypeDx breast cancer recurrence test. Among the candidate genes for inclusion were a large number of cell cycle genes. Using only one of these genes did not give us as good predictions as combining several of them. But the cell cycle genes were quite correlated with each other, and each additional gene added to the cost of the assay. After trying several different ways to combine or select among the cell cycle genes, I found that including a small number of them with relatively low pairwise correlations gave a regression model with good predictive accuracy. Freedom to operate in terms of patents and intellectual property also played a role. So sometimes statistics is not the only concern :)
+
+
+
+

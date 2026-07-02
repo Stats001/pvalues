@@ -1,0 +1,96 @@
+project:
+  type: book
+
+book:
+  title: "How to Get P-Values Less Than 0.05 in Biological Research"
+  subtitle: "Second Edition"
+  author: "Michael Walker"
+  date: ""
+  description: |
+    Practical examples of how to increase power, reduce sample size, and choose better statistics tests
+  repo-url: https://github.com/Stats001/pvalues-book-2nd-edition
+  repo-actions: [edit, issue]
+  sharing: [twitter, linkedin]
+  chapters:
+    - index.qmd
+    - chapters/ch01-avoid-ttests.qmd
+    - chapters/ch02-power-sample-size.qmd
+    - chapters/ch03-reduce-variability.qmd
+    - chapters/ch04-robust-tests.qmd
+    - chapters/ch05-rank-one-predictor.qmd
+    - chapters/ch06-rank-more-than-one-predictor.qmd
+    - chapters/ch07-survival-analysis.qmd
+    - chapters/ch08-count-data.qmd    
+    - chapters/ch09-avoid-categorical.qmd
+    - chapters/ch10-cmh-tests.qmd
+    - chapters/ch11-balancing-variables.qmd
+    - chapters/ch12-correlated-variables.qmd
+    - chapters/ch13-interactions.qmd
+    - chapters/ch14-two-primary-analyses.qmd
+    - chapters/ch15-avoid-OVAT.qmd
+    - chapters/ch16-rescue-factorial.qmd
+    - chapters/ch17-multiple-testing.qmd
+    - chapters/ch18-right-goal.qmd
+    - chapters/ch19-p-greater-05.qmd
+    - chapters/ch20-claude-for-these-analyses.qmd
+    - chapters/references.qmd
+
+bibliography: references.bib
+csl: chicago-author-date.csl
+
+format:
+  html:
+    theme:
+      light: flatly
+      dark: darkly
+    css: custom.css
+    code-fold: false
+    code-tools: true
+    toc: true
+    toc-depth: 3
+    number-sections: true
+    number-depth: 2
+    highlight-style: github
+    fig-align: center
+  pdf:
+    documentclass: scrbook
+    classoption: [oneside]
+    geometry:
+      - paperwidth=6.5in
+      - paperheight=9.25in
+      - margin=0.75in
+    toc: true
+    toc-depth: 3
+    number-sections: true
+    highlight-style: github
+    fig-align: center
+    include-in-header:
+      text: |
+        \usepackage{booktabs}
+        \usepackage{longtable}
+        \usepackage{fvextra}
+        \usepackage{framed}
+        \usepackage{xcolor}
+        \definecolor{codebg}{RGB}{245,245,245}
+        \definecolor{outputbg}{RGB}{228,228,228}
+        \DefineVerbatimEnvironment{Highlighting}{Verbatim}{breaklines,breaksymbolleft={},breaksymbolright={},commandchars=\\\{\},bgcolor=codebg}
+        \DefineVerbatimEnvironment{verbatim}{Verbatim}{breaklines,breaksymbolleft={},breaksymbolright={},bgcolor=outputbg}
+  epub:
+    toc: true
+    toc-depth: 3
+    number-sections: false
+    highlight-style: github
+    fig-align: center
+    css: style.css
+    code-overflow: wrap
+
+execute:
+  echo: true
+  eval: true
+  warning: false
+  message: false
+  freeze: auto
+
+knitr:
+  opts_knit:
+    width: 60

@@ -1,0 +1,317 @@
+# Don't know R? Use Claude to run these analyses for you
+
+I've used R for the examples in this book because R is free, powerful, and what I use most in my own consulting work. But most biologists I work with don't know R. They know Excel, and may know a little Prism.  Learning R well enough to run a two-way ANOVA, a Cox proportional hazards model, or a rank-based regression is, realistically, a multi-month investment that most bench scientists don't have time for.
+
+You no longer need to make that investment to use the methods in this book. You can describe your experiment and your data, in plain English, to Claude (an AI assistant available at claude.ai), and ask it to perform the analysis for you. It will write the R code, run it, and explain the result. If you ask, it will give the same kind of plain-English interpretation I've given throughout this book. While other AI/LLM products have similar capabilities, I have, to date, found that Claude gives the best results.
+
+This chapter is not a replacement for the rest of the book. It's the opposite: knowing what these methods are called and when to use them is exactly what lets you ask Claude for the right analysis instead of the easiest one. An AI assistant will happily run a t-test on your data if you ask for a t-test. Better if you know to ask for two-way ANOVA instead.
+
+## A short protocol for getting good results
+
+Treat Claude as a fast, well-read collaborator who writes the code for
+you and explains the result. Here are some suggestions to make the results more reliable and more useful.
+
+- Give Claude your actual data if you can. If you haven't collected the data yet, give it an Excel file with examples of the data you plan to collect. You can attach
+  a CSV file, an Excel file, or even a Prism export directly in your
+  conversation. Claude can read it and use the real values, rather than
+  you having to retype numbers (and possibly introduce errors).
+
+- Describe your experimental design in plain language: what you
+  measured, what the treatment groups are, whether there are covariates
+  like age or sex, and whether observations are paired, repeated, or
+  independent. This is the information a statistician would ask for, and
+  it's the information Claude needs to recommend the right method.
+
+- Name the method if you know it. If you've read this book, you often
+  will. "Run a two-way ANOVA" or "use Rfit for rank-based regression"
+  gets you a faster, more targeted answer than a vague request.
+
+- If you're not sure which method applies ask Claude to describe alternative methods,
+  recommend one and explain why — citing the kind of reasoning used in
+  this book (data type, number of explanatory variables, outliers, sample
+  size).
+
+- Always ask Clause to produce an R script file with all the required R code and the full output, not just a
+  conclusion. This keeps the analysis transparent: you, a labmate, a
+  statistician, or a journal reviewer can rerun the exact code later and
+  get the exact same answer. If you report the interpretation but don't have the R code, you may find the analysis is not reproducible, which can be rather embarrassing.
+
+- Ask follow-up questions. A conversation, unlike a menu of canned tests
+  in point-and-click software, lets you push back, ask "what if," and
+  request a different method if the first one doesn't fit. Use that.
+
+## A complete example, start to finish
+
+Here is roughly how a conversation might go, using the mouse weight
+example from the first chapter.
+
+> **Example query:** "I have weight measurements (in grams) from 12
+> mice: 6 wild-type and 6 mutant, with both males and females in each
+> group. I've attached the data as a CSV with columns Treatment, Sex,
+> and Grams. A t-test on Treatment alone wasn't significant, but I
+> suspect Sex is adding unexplained variability. Can you run a two-way
+> ANOVA testing for the effect of Treatment, controlling for Sex, show
+> me the R code and full output, and tell me in plain English whether
+> Treatment is significant?"
+
+Claude would read the attached file, write R code using `lm()` with the
+formula `Grams ~ Sex + Treatment` (the same approach used in the first
+chapter), run it, and return both the code and the output table. It would
+then explain, in plain English, that Sex is a significant source of
+variability, and that once it's controlled for, Treatment is also
+significant — the same conclusion reached earlier in the book, p = 0.0239.
+You could then ask follow-up questions, such as:
+
+> **Example query:** "Can you show me a boxplot of weight by treatment,
+> separately for each sex, so I can see this visually?"
+
+> **Example query:** "Does the result hold up if I check the assumptions
+> of ANOVA? Please check the residuals for normality and equal variance
+> and tell me if you see any problems."
+
+Each of these is a single, plain-English sentence. None of them requires
+you to know what `lm()`, `residuals()`, or `shapiro.test()` are — though
+Claude will tell you, if you ask.
+
+## Example queries for the methods in this book
+
+Below are example queries for the topic of each chapter. Adapt
+the wording to your own experiment; what matters is including the same
+information a statistician would need: what you measured, how the
+groups are defined, and what else might be affecting the response.
+
+### Control for variables with multiple regression or ANOVA
+
+> **Example query:** "I'm comparing a response between two treatment
+> groups, but I also have sex and age recorded for each subject, and I
+> suspect they affect the response too. Can you run a multiple
+> regression or ANOVA that controls for sex and age while testing for
+> the treatment effect?"
+
+### Power and sample size
+
+> **Example query:** "I'm planning an experiment comparing two groups.
+> Based on a pilot study, I expect a difference of about 4 units with a
+> standard deviation of 2 within each group. How many animals do I need
+> per group for 80% power at alpha = 0.05? Please show the
+> calculation."
+
+### Reduce variability before increasing sample size
+
+> **Example query:** "My pilot data have a standard deviation of 6
+> within each group, and I need an impractically large sample size to
+> reach 80% power. Can you help me think through what sources of
+> variability I might be able to control for or remove, and recalculate
+> the required sample size if I could cut the standard deviation in
+> half?"
+
+### Robust methods for data with outliers
+
+> **Example query:** "My data look mostly normal but I have two or
+> three extreme outliers I can't justify removing. Can you run a robust
+> regression using RobStatTM that reduces the influence of those
+> points, alongside an ordinary regression, so I can compare the two?"
+
+### Rank-based methods (Wilcoxon, Kruskal-Wallis, Rfit)
+
+> **Example query:** "My data clearly aren't normally distributed
+> (please check and show me a histogram). Can you run a Wilcoxon
+> rank-sum test comparing the two groups, and also a rank-based
+> regression using Rfit if I have more than one explanatory variable?"
+
+### Survival analysis
+
+> **Example query:** "I have time-to-event data with some animals
+> censored (they were still alive at the end of the study). Can you run
+> a Cox proportional hazards regression testing for a treatment effect,
+> controlling for [your covariates], and show me the hazard ratio with
+> a confidence interval?"
+
+### Count data
+
+> **Example query:** "My response variable is a count (number of pups
+> per litter, including zeros). A t-test doesn't seem appropriate. Can
+> you run a negative binomial regression and also a Wilcoxon test, and
+> tell me which seems more appropriate for these data and why?"
+
+### Don't categorize a quantitative variable
+
+> **Example query:** "I was planning to split my continuous outcome
+> into 'responders' and 'non-responders' at some cutoff and run a
+> chi-squared test. Before I do, can you compare the power of that
+> approach to analyzing the continuous outcome directly, using my
+> actual data?"
+
+### CMH tests for ordered categories
+
+> **Example query:** "I have a contingency table where both the
+> treatment groups and the outcome categories are ordered (for example,
+> dose: low/medium/high, and response: none/partial/complete). A plain
+> chi-squared test ignores that ordering. Can you run a
+> Cochran-Mantel-Haenszel test that accounts for it?"
+
+### Balancing covariates is not enough
+
+> **Example query:** "My treatment and control groups look balanced on
+> age and weight at baseline — similar means in each group. Does that
+> mean I don't need to adjust for them in the analysis, or should I
+> include them as covariates anyway? Can you show me the analysis both
+> ways?"
+
+### Correlated explanatory variables
+
+> **Example query:** "I have several explanatory variables I'd like to
+> include in a regression, but I suspect some of them are correlated
+> with each other. Can you check for multicollinearity (e.g., variance
+> inflation factors) before I interpret the regression coefficients?"
+
+### Interactions between subgroups and treatment
+
+> **Example query:** "I want to check whether the treatment effect is
+> different in males versus females (or in any other subgroup I
+> specify), not just whether there's an overall effect. Can you test
+> for a treatment-by-sex interaction and explain what it would mean if
+> it's significant?"
+
+### Two primary analyses instead of one
+
+> **Example query:** "I have two outcomes (or two genes, or two
+> endpoints) that I'd be happy to find an effect on either one. Instead
+> of picking one as primary, can you help me set up two co-primary
+> analyses, each tested at alpha = 0.025, and tell me what sample size
+> I need?"
+
+### Multiple hypothesis testing, done correctly
+
+> **Example query:** "I'm testing [number] hypotheses in this
+> experiment. Can you apply an appropriate correction for multiple
+> comparisons — Bonferroni, Holm's, or false discovery rate, whichever
+> you think fits best — and explain the difference so I can decide
+> which to report?"
+
+### When p > 0.05, and what p-values do and don't mean
+
+> **Example query:** "My result wasn't significant. Before I conclude
+> there's no effect, can you check whether my study actually had enough
+> power to detect an effect of the size I care about? And can you
+> suggest what else might explain a non-significant result besides 'no
+> true effect'?"
+
+## Asking for model checking and diagnostics
+
+A result is only as trustworthy as the assumptions behind it. You don't
+need to know the names of these assumptions to ask Claude to check
+them — just ask.
+
+> **Example query:** "Please check whether the assumptions of this
+> ANOVA are reasonably met — normality of residuals and equal variance
+> across groups — and show me the diagnostic plots."
+
+> **Example query:** "Are there any influential outliers in this
+> regression that are having an outsized effect on the result? Can you
+> identify them and show me what happens to the conclusion if I exclude
+> them?"
+
+> **Example query:** "For this Cox regression, can you check the
+> proportional hazards assumption and tell me whether it's reasonably
+> satisfied?"
+
+> **Example query:** "For this negative binomial model, is there
+> evidence of overdispersion that the model isn't accounting for?"
+
+If an assumption looks shaky, ask Claude what it would recommend instead
+— a transformation, a robust or rank-based method from this book, or a
+different model entirely.
+
+## Asking for alternative analyses and sensitivity checks
+
+One of the most useful things you can do with a conversational tool, that
+you can't easily do in Prism, is ask "what if" questions.
+
+> **Example query:** "How would the conclusion change if I used a
+> rank-based method instead of ordinary ANOVA?"
+
+> **Example query:** "Does the result still hold if I exclude the one
+> animal that looked sick during the study?"
+
+> **Example query:** "I have three reasonable ways to define my outcome
+> variable. Can you run the analysis all three ways and show me whether
+> the conclusion is consistent?"
+
+> **Example query:** "If I had used a t-test instead of controlling for
+> [covariate], would I have reached a different conclusion? Can you
+> show me both?"
+
+Running several reasonable analyses and checking whether they agree is
+good scientific practice — provided you decide which analysis is primary
+before you see the results, and report the others as sensitivity analyses
+rather than quietly picking whichever one gives you p < 0.05. See the
+chapter on multiple hypothesis testing for why that distinction matters.
+
+## Asking for a plain-English interpretation
+
+This is where an AI assistant is particularly useful for biologists who
+need to communicate results to people who aren't statisticians — including,
+often, themselves on a Friday afternoon.
+
+> **Example query:** "Can you explain this result in plain English, the
+> way you'd explain it to a biologist who doesn't know statistics?"
+
+> **Example query:** "Can you write one or two sentences I could use in
+> a paper's results section to describe this analysis and its
+> outcome?"
+
+> **Example query:** "My PI asked me to summarize this in the lab
+> meeting tomorrow. Can you give me three bullet points a
+> non-statistician would understand?"
+
+> **Example query:** "Does this result mean the treatment doesn't work,
+> or just that we don't have enough evidence either way? Please explain
+> the difference."
+
+That last question matters. As discussed earlier in this book, a
+non-significant p-value is not proof of no effect, and a good explanation
+should say so.
+
+## An AI assistant is a collaborator, not an oracle
+
+Everything in this chapter comes with the same caveat that applies to any
+statistical tool, including Prism, SAS, or a hand calculation: it is only as
+good as the question you ask and the care you take afterward.
+
+- Always look at the R code, not just the conclusion. If you don't
+  understand a line, ask. "What does this line of code do?" is a
+  perfectly good follow-up question, and a good way to actually learn R
+  over time.
+
+- Save the code and the output. This is your record of exactly what was
+  done, which you (or anyone else) can rerun later and get the same
+  answer.
+
+- Decide your analysis plan before you look at your data, not after. An
+  AI assistant makes it easy to try many different analyses quickly,
+  which is wonderful for honest sensitivity analysis and dangerous for
+  the kind of data dredging described earlier in this book. The methods
+  in this book are about choosing more powerful, more appropriate
+  analyses — not about trying approaches until one of them gives you
+  p < 0.05. Decide what you're testing and how, in writing, before you
+  see the results.
+
+- For anything going into a regulatory submission, a clinical study, or
+  a high-stakes publication, have a statistician review the analysis,
+  just as you would review any other critical result. An AI assistant
+  can make that statistician's time more efficient — by handling the
+  routine coding and giving you a first-pass understanding — but it does
+  not replace their judgment, particularly for unusual study designs.
+
+- Mistakes are possible, especially for complex or unusual designs that
+  don't closely resemble the worked examples in this book. Treat
+  surprising results with the same skepticism you'd apply to a
+  surprising result from any new piece of software: check it, and if it
+  matters, check it again a different way.
+
+Used this way, an AI assistant doesn't replace the thinking this book has
+asked of you. It removes the R syntax as a barrier between that thinking
+and the right analysis.
+
+

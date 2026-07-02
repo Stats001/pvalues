@@ -1,0 +1,108 @@
+# Use two primary analyses each with alpha 0.025 instead of one with 0.05
+
+
+Scientific journals more and more require that authors use statistical methods to deal with the multiple hypothesis testing problem. Specifically, they require that the overall probability of a false positive result, after testing multiple hypotheses, remains less than 0.05. 
+
+
+One approach used in experiments and clinical trials is to have a single primary hypothesis, with p < 0.05 as the required alpha for significance. If the primary hypothesis is significant (at p < 0.05), then you can test the second hypothesis. If the second hypothesis is significant, you can test the third hypothesis, and so on. This is sometimes called hierarchical testing. It requires that you guess the best order for testing the hypotheses.
+
+
+We’re going to look at an alternative that can give you better power and doesn’t require that you guess which hypotheses are most likely to be significant. 
+
+
+We’re going to make use of the Bonferroni method to adjust for multiple hypothesis testing.  The Bonferroni method says, if you want to test two hypotheses and preserve the overall alpha at 0.05, then you test each hypothesis using alpha of 0.05/2 = 0.025.  The Bonferroni method is described in the chapter “The wrong way and the right way to get p < 0.05: Multiple hypothesis testing”.
+
+
+Instead of using hierarchical testing, you can have two primary analyses and test each of them with alpha of 0.05/2 = 0.025 (the Bonferroni method). Perhaps surprisingly, testing two primary analyses, each with p < 0.025 as the required alpha for significance, can increase the overall power for the study. Let’s see why.
+
+
+Suppose we think that two genes may independently affect a response. We would be happy if the experiment showed that either of the two genes is associated with the response. 
+
+
+## Power for a test of a single gene using alpha of 0.05
+
+
+We’ll start with a sample size calculation for the hierarchical testing approach, where the primary analysis tests only one gene, with p < 0.05 as the required alpha. For this example, we make the following assumptions.
+
+
+Assumptions:
+
+- Difference in response between wildtype and mutant = delta = 1
+- Standard deviation of response within each group = 2
+- Desired power = 0.8
+- Significance level alpha = 0.05 (sig.level in the R code)
+
+Here is the estimated sample size using the R function power.t.test.
+
+
+```{r}
+power.t.test(delta=1, power = 0.8, sd = 2, sig.level  = 0.05)
+```
+
+
+Given these assumptions, the required sample size is 64 in each group. This sample size gives power of 0.8, meaning an 80% chance that the experiment will yield a positive result. Unfortunately, we don’t know which of the two genes to specify as the primary and which as the secondary. If we guess wrong, the primary could be non-significant, the secondary could give p < 0.05, but because of the rules for hierarchical hypothesis testing we could not claim that the secondary analysis result was significant.
+
+
+## Power for tests of two genes using alpha of 0.025 each
+
+
+As the alternative, here let’s examine power when the primary analysis tests both of the two genes, each with p < 0.025 as the required alpha. We fix the sample size at n = 64 per group, so we have the same sample size as for testing one gene as the primary. What power do we have for the test of each gene?
+
+
+Assumptions:
+
+- Sample size = 64
+- Difference in response between wildtype and mutant = delta = 1
+- Standard deviation of response within each group = 2
+- Significance level alpha = 0.025 (sig.level in the R code)
+
+Here is the estimated power using the R function power.t.test, with sample size fixed as n = 64.
+
+
+```{r}
+power.t.test(n = 64, delta=1, sd = 2, sig.level  = 0.025)
+```
+
+
+For these assumptions, the power is 0.71 for each gene. However, we are testing two genes as co-primaries, and we will be happy if either of them is significant.
+
+
+The power calculation above tells us the probability that each of the genes by itself will be significant, which is 0.71. But we want the probability that either gene will be significant. 
+
+
+Let’s call the two genes A and B.
+
+The probability that A is significant is 0.71.
+The probability that A is not significant is 1 - 0.71 = 0.29.
+P(A is not significant) = 0.29.
+
+Same for B:
+
+
+The probability that B is significant is 0.71.
+The probability that B is not significant is 1 - 0.71 = 0.29.
+P(B is not significant) = 0.29.
+
+From the laws of probability, if two events are independent, the probability that they both occur is the product of their individual probabilities. 
+
+So, the probability that both A is not significant and B is not significant is 
+P(A is not significant) * P(B is not significant) = 0.29 * 0.29 = 0.084.
+
+The probability that at least one of them is significant is just 1 minus the probability that both are not significant, which is 1 – 0.084 = 0.916, or 91.6%. There is a 91.6% probability that at least one of the genes will be significant.
+
+To summarize: the probability that one gene will not be significant is 1 – 0.71 = 0.29. If the genes are independent, then the probability they will both fail to be significant is 0.29 * 0.29 = 0.084. The probability that at least one of the two genes will be significant is 1 – 0.084 = 0.916, or 91.6%. Thus, provided we are happy if either gene is significant, our power for the entire experiment is 0.916 or 91.6%. This is an improvement over the power of 80% when we test the genes in a hierarchical order.
+
+The actual difference in power will depend on the effect size (delta) and the standard deviation. But the concept will still apply. The actual power will also depend on the degree of independence, as discussed next.
+
+**The key assumption: independent tests versus correlated tests**
+
+The key assumption that makes this method work is that the effects of the two genes are independent. If they are not independent, but instead are correlated, then the probability they will both fail is no longer the product of the probability of each of them failing. The actual probability will depend on the degree of correlation. As an example, suppose we are evaluating two doses of a drug. The effects of the two doses are likely not independent; if one dose works well it is plausible that the other dose is more likely to work well. We need to consider if the additional power from testing each with alpha of 0.025 is sufficient to offset the potential loss from correlation.
+
+
+## Bonferroni and Holm’s adjustments for multiple hypothesis testing
+
+We specified alpha of 0.05/2 = 0.025 to test two hypotheses using the Bonferroni method to adjust for multiple hypothesis testing. If either hypothesis gives p < 0.025, then it is significant. If both of the two hypotheses give p < 0.025 then both are significant.
+
+An alternative to the Bonferroni method is the Holm’s test. Using Holm’s test, we first sort the p-values for the two genes. If the smaller of the two p-values is less than 0.025, then the larger of the two p-values must be less than 0.05, rather than less than 0.025, to be considered significant. Instead of requiring that both hypotheses be less than 0.025, you could have one less than 0.025 and the second less than 0.05. Using Holm’s will give slightly more power than using Bonferroni.
+
+Both the Bonferroni method and the Holm’s test are described in the chapter “The wrong way and the right way to get p < 0.05: Multiple hypothesis testing”.

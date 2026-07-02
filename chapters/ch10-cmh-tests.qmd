@@ -1,0 +1,162 @@
+# Avoid Chi-Squared tests when you have ordered categories: use CMH tests instead
+
+When you have tables with ordered categorical variables, the Cochran-Mantel-Haenszel (CMH) test for ordered categories will usually give smaller p-values than a chi-squared or Fisher Exact test.
+
+
+Here are two examples of tables with ordered categorical variables, showing counts of the number of subjects in each category.
+
+- A clinical trial of a cancer drug in which the possible outcomes are the ordered categories "no remission", "partial remission", and "complete remission".
+
+| | No remission | Partial remission | Complete remission |
+|---|---|---|---|
+| Drug | 1 | 5 | 3 |
+| Placebo | 3 | 5 | 1 |
+
+
+- A clinical trial of a cancer drug in which the rows are the ordered treatment categories "placebo", "low dose", "high dose", and the columns are the ordered categories "no remission", "partial remission", and "complete remission". Both rows and columns are ordered categories.
+
+| | No remission | Partial remission | Complete remission |
+|---|---|---|---|
+| Placebo | 5 | 3 | 2 |
+| Low dose | 2 | 3 | 4 |
+| High dose | 1 | 3 | 6 |
+
+
+
+Published articles sometimes report non-significant results when the researchers use a chi-squared tests for tables that have ordered categories. The CMH test would provide more power and better p-values for these analyses.
+
+
+The Cochran-Mantel-Haenszel (CMH) test extends the chi-squared and Fisher Exact tests in two ways:
+
+- tables with more than 2 factors (stratified analyses)
+- tables with ordered rows, columns, or both
+
+Cochran-Mantel-Haenszel (CMH) test
+
+
+We'll use the CMHtest() function from vcdExtra package.
+
+```{r}
+library(vcdExtra)
+```
+
+
+
+## Example: CMH test for table with ordered columns
+
+
+Consider a clinical trial of a cancer drug versus a placebo in which the possible outcomes are the ordered categories "no remission", "partial remission", and "complete remission".
+
+
+Here is the data set.
+
+```{r}
+ordered.columns.table = array(
+  data = c(1, 5, 3, 3, 5, 1),
+  dim = c(2, 3),
+  dimnames = list(
+    Treatment = c("drug", "placebo"),
+    Result = c("no remission", "partial remission", "complete remission")
+  )
+)
+```
+
+
+
+Here is the resulting table.
+
+
+```{r}
+ordered.columns.table
+```
+
+
+The chi-squared test and Fisher Exact test ignore the ordering of the columns and return non-significant p-values for this example. Let’s start with the chi-squared test, which is commonly used.
+
+
+```{r}
+chisq.test(ordered.columns.table)
+```
+
+
+The sample size is quite small, so the Fisher test is preferred over the chi-squared test. The chi-squared output gives a warning that the chi-squared approximation may be incorrect. Next try the Fisher Exact test.
+
+
+```{r}
+fisher.test(ordered.columns.table)
+```
+
+
+We get a non-significant result for both the Fisher Exact test (p = 0.1135) and the chi-squared test (p = 0.069), but this is not reliable due to small sample size.
+
+In contrast, the Cochran-Mantel-Haenszel (CMH) test uses the fact that there are ordered rows, columns, or both, which increases the power. In this example, it gives a significant result.
+
+
+```{r}
+CMHtest(ordered.columns.table)
+```
+
+
+Here is the interpretation of the output.
+
+- The row labeled "cor" is used for tables where both rows and columns are ordered. We’ll look at an example shortly.
+- The row labeled "rmeans" (highlighted in yellow) shows the result testing that the row mean scores differ for drug versus placebo. The CMH test gives p = 0.0248, indicating that drug and placebo differ significantly in outcomes.
+- The row labeled "cmeans" would apply to tables in which the rows are ordered but columns are not ordered.
+- The row labeled "general" is similar to the chi-squared and Fisher tests.
+
+The p-value of 0.0248 for the test that row means differ indicates that there is a significant difference between the drug and placebo groups.
+
+
+## Example: CMH test for table with ordered rows and columns
+
+
+In this example we'll see data with both ordered rows and ordered columns from a clinical trial of a cancer drug.
+
+- Rows are the ordered treatment categories "placebo", "low dose", and "high dose".
+- Columns are the ordered categories "no remission", "partial remission", and "complete remission".
+- Both rows and columns are ordered categories.
+
+
+```{r}
+
+ordered.rows.and.columns.table = array(
+  data = c(5, 2, 1, 3, 3, 3, 2, 4, 6),
+  dim = c(3, 3),
+  dimnames = list(
+    Treatment = c("placebo", "low dose", "high dose"),
+    Result = c("no remission", "partial remission", "complete remission")
+  )
+)
+
+ordered.rows.and.columns.table
+```
+
+
+The chi-squared test and Fisher Exact test ignore the ordering of the rows and columns and return non-significant p-values for this example. 
+
+
+```{r}
+chisq.test(ordered.rows.and.columns.table)
+```
+
+
+
+```{r}
+fisher.test(ordered.rows.and.columns.table)
+```
+
+
+The Cochran-Mantel-Haenszel (CMH) test uses the fact that there are ordered rows and columns, which increases the power and gives a significant result in this example. The row labeled "cor" is used for tables where both rows and columns are ordered. 
+
+```{r}
+CMHtest(ordered.rows.and.columns.table)
+```
+
+
+The row labeled "cor" (highlighted in yellow) shows the result. The CMH test gives p = 0.032, indicating that the treatments differ significantly in outcomes.
+
+
+## Watch out for which CMH test your software is performing.
+
+There are several different statistical tests that are sometimes called a Cochran-Mantel-Haenszel test and sometimes called a Mantel-Haenszel test. In some software packages, the names Cochran-Mantel-Haenszel test or Mantel-Haenszel test do not refer to the test for ordered categories, but instead refer to a stratified version of a chi-squared test. An example of a stratified test would be when we want to look at the relationship between, say, drug and placebo versus responder / non-responder, but want to stratify by, say, sex. Then there are separate tables of treatment versus response for each sex, and the CMH or MH test calculates a chi-squared statistic that essentially pools the tables together. This analysis is clearly not the same as having ordered rows or columns, but unfortunately the naming convention doesn’t always make it clear which test the software actually performs. You need to read the documentation.
+

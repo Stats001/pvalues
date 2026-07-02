@@ -1,0 +1,286 @@
+# Increase sample size last: reduce unexplained variability first
+
+
+When you want to increase the chance of getting p < 0.05, the first thing you may think of is to increase the sample size. In this chapter, I'll show you why increasing the sample size should be the last thing you do. Reducing unexplained variability first is more effective and requires less work than increasing sample size. Let’s see why. 
+
+
+We’ll start with one simulation where we increase sample size, and then do a second simulation where we reduce unexplained variability. You may be surprised at how different the results are. We are going to use the idea of power, so we’ll start with a brief explanation.
+
+
+Power is the probability that you will get p < 0.05 in your experiment, assuming that the treatment has an effect. Typically, we want our experiments to have power of 80% or 90%, meaning that there is an 80% or 90% chance that we will get p < 0.05 if our assumptions about variability and effect size in our experiment are correct. 
+
+
+Suppose you do a power analysis and find that you only have 30% power; that is, the probability that you will get p < 0.05 is 30%. What do you do if your experiment has such low power? 
+
+
+Power for a t-test depends on four things:
+
+- The difference between the means of the two treatment groups (effect size)
+- The variability of the treatment effect with each treatment group. This is represented by the standard deviation within each treatment group.
+- Sample size: how many subjects will be in each group?
+- The required p-value (alpha). Alpha is most often 0.05, which means that we must get a p-value less than 0.05 to conclude that the result is significant and the treatment has an effect.
+
+Let’s do some simulations to illustrate how effective decreasing unexplained variability is compared to increasing sample size.
+
+
+## Simulations to illustrate the effect of sample size and within-group variability on power
+
+
+We'll use the R software to simulate how power changes depending on the variability within treatment groups and the sample size. 
+
+
+### Increase sample size
+
+
+We’ll simulate a clinical trial for a drug that lowers mean blood pressure by 10 units. We’ll create two populations for the simulation: 
+
+- A population of 10,000 patients who receive a placebo.
+- A population of 10,000 patients who receive a drug to reduce blood pressure.
+
+Create a population of 10,000 patients who receive a placebo. We'll generate these to have approximately mean = 150, standard deviation = 20. Here is the R code. We use the R function set.seed() so that the results will be reproducible when you run the code.
+
+```{r}
+set.seed(1234)
+placebo= rnorm(10000, 150, 20)
+mean(placebo)
+sd(placebo)
+```
+
+
+Create a population of 10,000 patients who receive a drug to reduce blood pressure. We'll generate these to have approximately mean = 140, standard deviation = 20.
+
+
+```{r}
+set.seed(3456)
+drug = rnorm(10000, 140, 20)
+mean(drug)
+sd(drug)
+```
+
+Plot the two populations.
+
+
+```{r}
+plot(density(placebo), xlim= c(50, 250),ylim=c(0,.025))
+lines(density(drug), lty=2)
+```
+
+
+Take samples of size n = 30 from the placebo group and the drug group.
+
+
+```{r}
+placebo.sample = sample(placebo, size=30)
+drug.sample = sample(drug, size=30)
+```
+
+Plot the two samples.
+
+```{r}
+plot(density(placebo.sample), xlim= c(50, 250),ylim=c(0, .025))
+lines(density(drug.sample), lty=2)
+```
+
+
+Perform a t-test to compare the two samples.
+
+```{r}
+ttest.result = t.test(placebo.sample, drug.sample, var.equal=TRUE)
+```
+
+Notice that, in this sample, even though we know that the two populations are different (mean of 150 vs. mean of 140), the t-test gives us p = 0.2812, a non-significant result. We would conclude, incorrectly, that there is no difference between the two groups, and that the drug has no effect.
+
+
+We can extract the p-value from the t-test output, so that we can pass it to other functions, which we will do shortly.
+
+
+```{r}
+ttest.result$p.value
+```
+
+What happens if we repeat the process of taking a sample and doing a t-test several times? Here is code to take 4 samples, perform 4 t-tests, and output the 4 p-values.
+
+```{r}
+set.seed(1234)
+for (i in 1:4) {
+  placebo.sample = sample(placebo, size=30)
+  drug.sample = sample(drug, size=30)
+  ttest.result = t.test(placebo.sample, drug.sample, var.equal=TRUE)
+  print(ttest.result$p.value)
+}
+```
+
+
+
+Even with just these 4 samples, we have p-values ranging from 0.0299 to 0.81. The p-values are going up or down by an order of magnitude, just as a result of taking another sample from the identical population. Nothing else is changing; we are just taking another random sample.
+
+
+What is the probability that we will detect a significant difference (p < 0.05) if we take many samples of size n=30? To answer this question, we'll do a simulation of 1000 samples and t-tests, and look at the distribution of p-values.
+
+
+```{r}
+set.seed(12345)
+n = 30
+n.simulations = 1000
+pvalue.list = numeric(n.simulations)
+for (i in 1:n.simulations)
+{
+  placebo.sample = sample(placebo, size=n)
+  drug.sample = sample(drug, size=n)
+  pvalue.list[i] = t.test(placebo.sample, drug.sample, var.equal=TRUE)$p.value
+}
+```
+
+
+Here is a plot of the 1000 p-values we get from taking 1000 random samples (stored in the variable pvalue.list).
+
+
+```{r}
+hist(pvalue.list, xlim= c(0, 1), breaks=seq(0,1,.05), ylim=c(0,1000))
+```
+
+
+What percent of the 1000 simulated samples give a p-value less than 0.05? From the graph we see that about 500 out of 1000 simulated samples give p < 0.05. So, the probability that our experiment will give us a significant result is 500/1000, or 50%. The simulation indicates that we have about 50% power.
+
+If we increase sample size, we increase power. What is the probability that we will detect a significant difference (p < 0.05) if we increase the sample size to n=50? 
+Do a simulation of 1000 samples and t-tests and look at the distribution of p-values.
+
+```{r}
+set.seed(12345)
+n = 50
+pvalue.list = c()
+for (i in 1:1000)
+{
+  placebo.sample = sample(placebo, size=n)
+  drug.sample = sample(drug, size=n)
+  pvalue.list[i] = t.test(placebo.sample, drug.sample, var.equal=TRUE)$p.value
+}
+```
+
+Plot the pvalue.list.
+
+```{r}
+hist(pvalue.list, xlim= c(0, 1), breaks=seq(0,1,.05), ylim=c(0,1000))
+```
+
+
+What percent of the 1000 simulated samples give a p-value less than 0.05? From the graph, approximately 700 out of 1000 simulated samples give p < 0.05. So, the probability that our experiment will give us a significant result is 700/1000, or 70%. The simulation indicates that we have 70% power. Even after a fairly big increase in sample size we still have unsatisfactory power.
+
+
+### Decrease the unexplained variance
+
+
+If we decrease the unexplained variance, we increase power. Suppose that we know that other factors affect our response variable. For example, age, sex, medical history, and baseline disease severity may all affect the response variable, regardless of treatment. We may know that different instruments give higher or lower values, so we can control for those differences. A good strategy to reduce the unexplained variance is to include variables that affect the response in a multiple regression or ANOVA model. Here’s a simulation.
+
+
+Create a population of 10,000 patients who receive a placebo. We'll generate these to have approximately mean = 150, standard deviation = 10.
+
+
+```{r}
+set.seed(1234)
+placebo= rnorm(10000, 150, 10)
+mean(placebo)
+sd(placebo)
+```
+
+Create a population of 10,000 patients who receive a drug to reduce blood pressure. We'll generate these to have approximately mean = 140, standard deviation = 10.
+
+
+```{r}
+set.seed(3456)
+drug = rnorm(10000, 140, 10)
+mean(drug)
+sd(drug)
+```
+
+
+Plot the two populations.
+
+
+```{r}
+plot(density(placebo), xlim= c(50, 250), ylim=c(0, .05))
+lines(density(drug), lty=2)
+```
+
+
+Take sample of size n = 30 from each group.
+
+```{r}
+set.seed(4321)
+placebo.sample = sample(placebo, size=30)
+drug.sample = sample(drug, size=30)
+```
+
+Plot the two samples.
+
+```{r}
+plot(density(placebo.sample), xlim= c(50, 250),ylim=c(0, .05))
+lines(density(drug.sample), lty=2)
+```
+
+
+Perform a t-test to compare the two samples.
+
+```{r}
+t.test(placebo.sample, drug.sample, var.equal=TRUE)
+```
+
+
+After reducing the variability within group we get a good p-value, p = 0.000085, for this sample.
+
+
+What is the probability that we will detect a significant difference (p < 0.05) if we take many samples of size n=30, with this reduced variability? Do a simulation of 1000 samples and t-tests and look at the distribution of p-values.
+
+```{r}
+set.seed(4321)
+n = 30
+pvalue.list = c()
+for (i in 1:1000)
+{
+  placebo.sample = sample(placebo, size=n)
+  drug.sample = sample(drug, size=n)
+  pvalue.list[i] = t.test(placebo.sample, drug.sample, var.equal=TRUE)$p.value
+}
+```
+
+
+Plot the pvalue.list.
+
+
+```{r}
+hist(pvalue.list, xlim= c(0, 1), breaks=seq(0,1,.05), ylim=c(0,1000))
+```
+
+
+What percent of the 1000 simulated samples give a p-value less than 0.05? 
+
+```{r}
+sum(pvalue.list < 0.05)/1000
+```
+
+We see that 974 out of 1000 simulated samples give p < 0.05. So, the probability that our experiment will give us a significant result is 974/1000, or 97.4%. The simulation indicates that we have 97.4% power.
+
+
+Which would you prefer to do: increase the sample size (spending more time and money), or decrease the unexplained variance by controlling for other variables that affect the response?
+
+
+## Which of the four factors that affect power should you change to best increase power?
+
+- Difference between group means: In many experiments and clinical trials, for example testing a drug or testing the effect of a genetic mutation, it is difficult to increase the difference between the group means. Usually this is not something you can change quickly. You may be able to select subjects (such as patients or animals with more severe disease) that may have a bigger response to the treatment.
+- Variability within treatment group: There are many ways that you can reduce the variability within treatment groups. For example:
+    - Use multiple regression or multi-way ANOVA to include additional variables that affect the response. If variables such as age or sex affect the response, it is less work to collect that information for each subject than it is to get more subjects.
+    - Use rank methods or robust methods that reduce the effect of outliers on variability. 
+    - Identify and control process variables, such as plate, batch, day, or operator, that increase unexplained variability. See the chapter on fractional factorial experiment designs for very efficient ways to identify such variables.
+- Sample size: When you want to increase power, increasing sample size is less effective than reducing variability for two reasons.
+    - Reducing the standard deviation directly increases power. Unfortunately, increasing the sample size only increases power as the square root of n, rather than directly with n. We also get diminishing returns: the bigger the sample size, the less benefit we get from further increasing n.
+    - If you increase power by increasing sample size, you haven’t fixed the problem of large variability within a group. You will still have to increase sample size in all your future experiments. In contrast, suppose you do a little work and find out what variables contribute most of the unexplained variability in the experimental setup or system you use. Then, in all your subsequent experiments, you can use the same methods to reduce variability, increase power and reduce sample size. Reducing unexplained variability is much more effective than increasing sample size.
+- Change alpha: Most scientific and clinical journals expect alpha of 0.05, so you have little choice about using a different alpha. However, see the chapter “Use two primary analyses” to see how using alpha of 0.025 for two analyses can increase the overall power of a study.
+
+## Definition of effect size and standardized effect size
+
+
+The effect size for a t-test can be defined as the difference between the means of the two groups.
+
+The standardized effect size for a t-test is the difference between the means of the two groups divided by the within-group standard deviation.
+
+Some statisticians use the term “effect size” to mean the “standardized effect size”.

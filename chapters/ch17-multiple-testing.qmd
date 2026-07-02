@@ -1,0 +1,249 @@
+# The wrong way and the right way to get p < 0.05: multiple hypothesis testing
+
+If you perform enough hypothesis tests, eventually one of them will give a p-value less than 0.05, even if the treatment has no effect. Specifically, about 1 in 20 (0.05) of the tests will give a “significant” p-value (<0.05) when all the null hypotheses are true.
+
+This is called the "multiple testing" or "multiple comparison" problem. It is sometimes also called data dredging. 
+
+Journals in clinical medicine and regulatory agencies have become particularly sensitive to the problem of false positive results caused by testing multiple hypotheses. The standards for clinical journals and the Food and Drug Administration have become quite strict for dealing correctly with p-value adjustments that account for multiple comparisons. Reviewers for journals in biological research are not quite as strict, but more and more expect appropriate methods to avoid false positive results caused by multiple hypothesis testing.
+
+For this chapter, I’ll assume that you plan to perform a study with some number of primary and secondary analyses, and you want to use a method to control for multiple hypothesis testing that will be acceptable to journal reviewers. 
+
+Example: One of my venture capital clients called me with a question regarding a company he was interested in. In their PowerPoint slide deck, the company said that they had tested 100 proteins to see if any were differentially expressed in patients with a particular disease compared to healthy controls. They said that they had found 10 proteins that differed significantly between disease and healthy controls, with p < 0.1 (not p < 0.05).
+
+If we require p < 0.1 for significance, and there is no difference in expression between disease and controls, we expect to see about 0.1 * 100 = 10 proteins that were “significant”. So, the results that the company was reporting were exactly what we would expect if the proteins had no relationship at all to disease.
+
+I spoke with the Chief Scientific Officer of the company. He agreed with my analysis and also agreed that their results could have occurred just due to chance. Their results were not in fact evidence of any association with disease status. He then said that they presented these results to potential clinical collaborators who could provide specimens and enroll patients for their clinical studies. The clinical collaborators had agreed to participate based on these results. So, the company had kept the results in the slide deck!
+
+
+## The probability of a false positive result with multiple comparisons
+
+What is the probability of a false positive result when we do multiple comparisons?
+
+P(at least one false positive result) = 1 - P(no false positive results)
+
+For a single t-test, the probability of getting a false positive result is alpha = 0.05. 
+
+The probability of not getting a false positive result is 1 – alpha = 1 - 0.05 = 0.95. 
+
+If we do k = 2 t-tests, the probability of getting no false positives on any test is 0.95^k = 0.95^2.
+
+
+P(at least one false positive result) 
+
+
+= 1 - P(zero false positive results)
+
+
+= 1 – (1 - .05) ^ k
+
+
+= 1 – (1 - .05) ^ 2
+
+
+= 1 – (.95) ^ 2
+
+
+= 0.0975
+
+
+We've increased the risk of a false positive result from p = 0.05 for one test, to p = 0.0975 doing two tests.
+
+
+The probability of getting at least one false positive (Type 1 error) when testing k hypotheses is 
+
+
+P(at least one false positive result) 
+
+
+= 1 - P(zero false positive results)
+
+
+= 1 – (0.95) ^ k
+
+
+What is the probability of at least one false positive (Type I error) when testing 5 hypotheses?
+
+
+P(at least one false positive result) 
+
+
+= 1 - P(zero false positive results)
+
+
+= 1 – (1 - .05) ^ k
+
+
+= 1 – (1 - .05) ^ 5
+
+
+= 1 – (.95) ^ 5
+
+
+= 0.226
+
+
+If we do 10 t-tests with alpha = 0.05, then
+
+
+P(at least one false positive result)  
+
+
+= 1 – (.95) ^ 10
+
+
+= 0.40
+
+
+For a given target p-value (alpha, the Type I error rate) such as 0.05, testing k hypotheses, the probability of at least one false rejection is 1-(1-alpha)^k. As the table below shows, the probability of getting at least one false positive result rises quickly as we test more hypotheses. 
+
+
+## Methods to adjust p-values to control for multiple hypothesis testing
+
+
+Many methods have been developed to control for possible false positive results due to multiple testing. I won’t try to cover them all, but instead will describe a few that are commonly used. The R package multcomp has extensive capabilities for multiple comparison analyses.
+
+
+**Bonferroni correction**
+
+
+The most conservative method is the Bonferroni correction. If you use Bonferroni, you won't get many false positives, but you will get a lot of false negative results. The Bonferroni method gives you very little power to detect real relationships. Alternative methods are less conservative and give you more power.
+
+
+To calculate the Bonferroni adjusted p-values, multiply each unadjusted p-value by the number of hypotheses tested, k, up to a maximum Bonferroni adjusted p-value of 1. If the Bonferroni adjusted p-value is still less than the original alpha (say, 0.05), then reject the null hypothesis.
+
+
+Example of Bonferroni adjusted p-values:
+
+
+Suppose that 3 hypotheses are tested.
+
+
+Unadjusted p-values are: 
+
+
+p1 = 0.001
+
+
+p2 = 0.021
+
+
+p3 = 0.07
+
+
+Bonferroni adjusted p-values are:
+
+
+p1 = 0.001 * 3 = 0.003
+
+
+p2 = 0.021 * 3 = 0.063
+
+
+p3 = 0.07 * 3 = 0.21
+
+
+
+Hypothesis 1, with adjusted p = 0.003, remains significant.
+Hypothesis 2, with adjusted p = 0.063, is no longer significant.
+Hypothesis 3, with adjusted p = 0.21, is not significant, with or without adjustment.
+
+
+*Holm’s test*
+
+
+Holm’s test is a more powerful alternative to the Bonferroni correction, so it may give more positive results, but still protects the specified alpha (typically 0.05).
+
+For the Bonferroni correction, we apply the same critical value (alpha/k) to all the hypotheses simultaneously. It is called a “single-step” method.
+
+The Holm’s test is a stepwise method, also called a sequential rejection method, because it examines each hypothesis in an ordered sequence, and the decision to accept or reject the null depends on the results of the previous hypothesis tests.
+
+The Holm’s test is less conservative than the Bonferroni correction and is therefore more powerful. The Holm’s test uses a stepwise procedure to examine the ordered set of null hypotheses, beginning with the smallest P value, and continuing until it fails to reject a null hypothesis.
+
+Here is an example of a Holm’s test.
+
+Suppose we have k = 3 t-tests. 
+Assume target alpha(T) = 0.05.
+
+Unadjusted p-values, sorted from smallest to largest, are:
+
+
+p1 = 0.001
+p2 = 0.021
+p3 = 0.074
+
+
+For the jth test, calculate alpha(j) = alpha(T)/(k – j +1)
+
+
+For test j = 1, 
+
+
+alpha(j) = alpha(T)/(k – j +1)
+
+
+= 0.05/(3 – 1 + 1) 
+
+
+= 0.05 / 3
+
+
+= 0.0167
+
+
+For test j=1, the observed p1 = 0.001 is less than alpha(j) = 0.0167, so we reject the null hypothesis.
+
+
+For test j = 2, 
+
+
+alpha(j) = alpha(T)/(k – j +1)
+
+
+= 0.05/(3 – 2 + 1) 
+
+
+= 0.05 / 2
+
+
+= 0.025
+
+
+For test j=2, the observed p2 = 0.021 is greater than alpha(j) = 0.025, so we reject the null hypothesis. Notice that this is different from the result using the Bonferroni correction.
+
+
+For test j = 3, 
+
+
+alpha(j) = alpha(T)/(k – j +1)
+
+
+= 0.05/(3 – 3 + 1) 
+
+
+= 0.05 / 1
+
+
+= 0.05
+
+
+For test j=3, the observed p2 = 0.074 is greater than alpha(j) = 0.05, so we do not reject the null hypothesis.
+
+
+## Hierarchical hypothesis testing
+
+
+A different way to deal with the multiple hypothesis testing problem is to specify, before you begin the experiment or clinical trial, the order in which you will test hypotheses. Here is how it works.
+
+- If the first hypothesis is significant, then test the second hypothesis. 
+- If the first and second hypotheses are significant, test the third hypothesis.
+- Continue in the pre-specified order until you encounter the first non-significant result.
+- As soon as you encounter a non-significant result, stop all further testing.
+
+This method will protect the alpha at the specified level (such as 0.05) for all the hypotheses. However, you have to correctly guess the order in which to test the hypotheses. Suppose that your first hypothesis is not significant, with p = 0.07. Even if a later hypothesis has p < 0.05, you still cannot claim it is significant, because of using the hierarchical method to control for false positives. 
+
+
+## False discovery rate: an alternative to controlling false positives
+
+None of the standard methods for controlling false positives is likely to yield satisfactory results if you are testing a large number of hypotheses. For example, suppose you are trying to determine if any of several hundred genes, proteins or microRNAs are differentially expressed in disease. You can’t pre-specify an order of hierarchical hypothesis testing if you don’t know anything about their effects. Using a Bonferroni correction on hundreds or potentially thousands of genes or proteins will kill your p-values. An alternative is to estimate the False Discovery Rate (FDR). The FDR is the proportion of positive (significant) results that are likely to be false positives. It is much more liberal than controlling alpha for false positives. 
+
+See the chapter on False Discovery Rate (FDR) in the companion book for more explanation and examples.

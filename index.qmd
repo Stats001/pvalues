@@ -5,13 +5,35 @@
 The title of this book is deliberately provocative, and I want to be direct about what it means and what it doesn't. Every method described here is about choosing the most appropriate, most powerful statistical analysis for your data and your experimental design. These are decisions you make before you look at your results. None of them are about running analysis after analysis until one happens to cross the p < 0.05 line, then reporting only that one. That practice has a name: data dredging, or “p-hacking.” It produces false positives, wastes other scientists’ time trying to replicate effects that were never real, and is a problem I take seriously enough to devote two full chapters to later in this book (see “The wrong way and the right way to get p < 0.05” and “Is p < 0.05 the right goal?”).
 
 
-## Website and companion book
+## Websites, PDF version of the book, and R code from the book
 
-The website for this book is [mwalkerstatistics.com](https://mwalkerstatistics.com). The website has a PDF version of this book, and a PDF file for the companion book, *A Gentle Introduction to Statistics for Biological Research*. Both are free.
+The book is available at these two websites.
 
-R code for both books is on the website.
+
+[https://mwalkerstatistics.com](https://mwalkerstatistics.com) 
+
+This website has a free PDF version of the book. It also has all the R code in the book in an R script file that you can download.
+
+[https://stats001.github.io/pvalues/](https://stats001.github.io/pvalues/)
+
+This website is the github repository for the book. 
+
+On the website, click here for the free PDF version of the book: 
+
+[Download the PDF version of the book](downloads/How-to-Get-P-Values-Less-Than-0.05-in-Biological-Research.pdf)
+
+On the website, click here for the R code in the book in an R script file that you can download:
+
+[Download the R code from the book](downloads/P_Values_Book_R_Code.R)
+
+
+The book will also be available through Amazon Kindle, in Kindle Unlimited.
+
+## Companion book: A Gentle Introduction to Statistics for Biological Research
 
 In *A Gentle Introduction to Statistics for Biological Research*, I introduce and explain the methods that I recommend in *How to Get P-Values Less Than 0.05 in Biological Research*.
+
+The website [mwalkerstatistics.com](https://mwalkerstatistics.com) has a free PDF version of the companion book.
 
 If you have no experience with statistics, I suggest that you start with the companion book. If you have some exposure to statistics, including standard deviation and t-tests, you can begin reading *How to Get P-Values Less Than 0.05 …*, and refer to *A Gentle Introduction …* when you need or would like more explanation of a particular concept or method.
 

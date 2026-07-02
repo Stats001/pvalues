@@ -1,5 +1,7 @@
 project:
   type: book
+  resources:
+    - downloads/
 
 book:
   title: "How to Get P-Values Less Than 0.05 in Biological Research"
@@ -8,7 +10,7 @@ book:
   date: ""
   description: |
     Practical examples of how to increase power, reduce sample size, and choose better statistics tests
-  repo-url: https://github.com/Stats001/pvalues-book-2nd-edition
+  repo-url: https://github.com/Stats001/pvalues
   repo-actions: [edit, issue]
   sharing: [twitter, linkedin]
   chapters:

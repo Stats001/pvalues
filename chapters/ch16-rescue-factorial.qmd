@@ -30,14 +30,14 @@ Here is a fractional factorial design to analyze cookie yield versus
 these 7 factors in only 8 batches of cookies.
 
 ```{r}
-cookie.data = data.frame(flour  = c("brown","white","brown","white","brown","white","brown","white"),
-temp   = c("low","low","high","high","low","low","high","high"),
-soda   = c("low","low","low","low","high","high","high","high"),
-time   = c("long","short","short","long","long","short","short","long"),
-water  = c("high","low","high","low","low","high","low","high"),
-sift   = c("sift","sift","no","no","no","no","sift","sift"),
+cookie.data = data.frame(flour = c("brown","white","brown","white","brown","white","brown","white"),
+temp = c("low","low","high","high","low","low","high","high"),
+soda = c("low","low","low","low","high","high","high","high"),
+time = c("long","short","short","long","long","short","short","long"),
+water = c("high","low","high","low","low","high","low","high"),
+sift = c("sift","sift","no","no","no","no","sift","sift"),
 butter = c("low","high","high","low","high","low","low","high"),
-yield  = c(47, 74, 84, 62, 53, 78, 87, 60))
+yield = c(47, 74, 84, 62, 53, 78, 87, 60))
 cookie.data[1:7] = lapply(cookie.data[1:7], factor)
 cookie.data
 ```

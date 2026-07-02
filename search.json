@@ -20,11 +20,11 @@
     ]
   },
   {
-    "objectID": "index.html#websites",
-    "href": "index.html#websites",
+    "objectID": "index.html#websites-pdf-version-of-the-book-and-r-code-from-the-book",
+    "href": "index.html#websites-pdf-version-of-the-book-and-r-code-from-the-book",
     "title": "How to Get P-Values Less Than 0.05 in Biological Research",
-    "section": "Websites",
-    "text": "Websites\nThe book is available at two websites.\nhttps://mwalkerstatistics.com\nThis website has a free PDF version of the book. It also has all the R code in the book in an R script file that you can download.\nhttps://stats001.github.io/pvalues/\nThis website is the github repository for the book. It has an HTML version of the book.\nThe book will also be available through Amazon Kindle, in Kindle Unlimited.",
+    "section": "Websites, PDF version of the book, and R code from the book",
+    "text": "Websites, PDF version of the book, and R code from the book\nThe book is available at these two websites.\nhttps://mwalkerstatistics.com\nThis website has a free PDF version of the book. It also has all the R code in the book in an R script file that you can download.\nhttps://stats001.github.io/pvalues/\nThis website is the github repository for the book.\nOn the website, click here for the free PDF version of the book:\nDownload the PDF version of the book\nOn the website, click here for the R code in the book in an R script file that you can download:\nDownload the R code from the book\nThe book will also be available through Amazon Kindle, in Kindle Unlimited.",
     "crumbs": [
       "Preface"
     ]
